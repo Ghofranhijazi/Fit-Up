@@ -45,7 +45,9 @@ export default function NavBar() {
           
           {/* Changed GET STARTED to LOG IN */}
           <button className="px-4 py-2 border border-white text-white hover:bg-[#C0526F] hover:border-[#C0526F] rounded-lg">
+            <Link to="/login">
             LOG IN
+            </Link>
           </button>
         </div>
       </div>

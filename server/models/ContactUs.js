@@ -1,31 +1,30 @@
-const mongoose = require('mongoose');
+// models/ContactUs.js
+const { DataTypes } = require("sequelize");
+const sequelize = require('../config/database').sequelize;// Import Sequelize connection
+const User = require('./User'); // Import User model
 
-const contactMessageSchema = new mongoose.Schema({
-  user_id: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User', // Reference to the User model
-    required: false, 
-},
+const ContactUs = sequelize.define('ContactUs', {
   name: {
-    type: String,
-    required: true,
+    type: DataTypes.STRING,
+    allowNull: false,
   },
   email: {
-    type: String,
-    required: true,
+    type: DataTypes.STRING,
+    allowNull: false,
   },
   subject: {
-    type: String,
-    required: true,
+    type: DataTypes.STRING,
+    allowNull: false,
   },
   message: {
-    type: String,
-    required: true,
+    type: DataTypes.STRING,
+    allowNull: false,
   },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
+}, {
+  timestamps: true, // Adds createdAt and updatedAt automatically
 });
 
-module.exports = mongoose.model('ContactUs', contactMessageSchema);
+// Define relationship with User
+ContactUs.belongsTo(User, { foreignKey: 'user_id' });
+
+module.exports = ContactUs;

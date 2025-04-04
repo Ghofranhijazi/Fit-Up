@@ -1,6 +1,7 @@
 export { default as Home } from "./Home/Home.jsx";
 export { default as Navbar } from "../components/NavBar/NavBar.jsx";
-export { default as RegisterLogin } from "./Auth/RegisterLogin.jsx";
+export { default as Register } from "./Auth/Register.jsx";
+export { default as Login } from "./Auth/Login.jsx";
 export { default as Logout } from "./Auth/Logout.jsx";
 export { default as AdminDash } from "./AdminDash/AdminDash.jsx";
 export { default as Payment } from "./Payment/Payment.jsx";
@@ -15,4 +16,7 @@ export { default as GymNearbyNurseryPage } from "./GymNearbyNurseryPage/GymNearb
 export { default as IndoorService } from "./IndoorService/IndoorService.jsx";
 export { default as NearbyService } from "./NearbyService/NearbyService.jsx";
 export { default as OnlyService } from "./OnlyService/OnlyService.jsx";
+export { default as PlansPage } from "./PlansPage/PlansPage.jsx";
+export { default as GymRegistrationForm } from "./GymRegistrationForm/GymRegistrationForm.jsx";
+export { default as BookingPage } from "./BookingPage/BookingPage.jsx";
 

@@ -9,7 +9,7 @@ import Footer from'../Footer/Footer.jsx'
         <>
         {/* Hero Section */}
        
-  <section id="hero" className="relative w-full h-183 flex items-center  justify-center text-white">
+  <section id="hero" className="relative w-full h-190 flex items-center  justify-center text-white">
    {/* Background Video */}
    <video
    className="absolute inset-0 w-full h-full object-cover "

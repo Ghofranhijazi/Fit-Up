@@ -1,7 +1,8 @@
 import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
 import {
   Home,
-  RegisterLogin,
+  Register,
+  Login,
   Logout,
   AdminDash,
   Payment,
@@ -17,6 +18,9 @@ import {
   IndoorService,
   NearbyService,
   OnlyService,
+  PlansPage,
+  GymRegistrationForm,
+  BookingPage,
 } from "../src/components";
 
 
@@ -133,7 +137,7 @@ function App() {
       ),
     },
     {
-      path: "/OnlyService",
+      path: "/gym-details/:id",
       element: (
         <>
           <Navbar />
@@ -143,16 +147,46 @@ function App() {
       ),
     },
     {
-      path: "/login",
-      element: <RegisterLogin />,
+      path: "/PlansPage",
+      element: (
+        <>
+          <Navbar />
+          <PlansPage/>
+          <Footer />
+        </>
+      ),
+    },
+    {
+      path: "/GymRegistrationForm",
+      element: (
+        <>
+          <Navbar />
+          <GymRegistrationForm/>
+          <Footer />
+        </>
+      ),
+    },
+    {
+      path: "/Booking/:id",
+      element: (
+        <>
+          <Navbar />
+          <BookingPage/>
+          <Footer />
+        </>
+      ),
     },
     {
       path: "/logout",
       element: <Logout />,
     },
     {
+      path: "/login",
+      element: <Login />,
+    },
+    {
       path: "/register",
-      element: <RegisterLogin />,
+      element: <Register />,
     },
     {
       path: "/AdminDash/*",

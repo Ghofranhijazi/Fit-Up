@@ -1,9 +1,12 @@
 const express = require('express');
-const { register, login } = require('../controllers/authController');
+const authRoute = express.Router();
+const verifyToken = require("../Middlewares/authMiddleware");
+const {register, login,} = require("../controllers/authController");
 
-const router = express.Router();
-
-router.post('/register', register);
-router.post('/login', login);
-
-module.exports = router;
+authRoute.post('/register', register);
+authRoute.post('/login', login);
+authRoute.get("/check", verifyToken, (req, res) => {
+    res.status(200).json({ message: "API is working" });
+  });
+  
+  module.exports = authRoute;
