@@ -5,7 +5,7 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet"; // لاستعمال أيقونات مخصصة للماركرات
 
-export default function OnlyService() {
+export default function GymDetailsPage() {
   const { id } = useParams();
   const [gym, setGym] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -103,7 +103,7 @@ export default function OnlyService() {
                 </li>
                 <li className="flex">
                   <span className="font-semibold min-w-[80px]">Opening hours:</span>
-                  <span>{gym.openingHour} - {gym.closingHour}</span>
+                  <span> {gym.openingHour} AM - {gym.closingHour} PM </span>
                 </li>
                 <li className="flex">
                   <span className="font-semibold min-w-[80px]">Price:</span>

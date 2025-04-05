@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 
-export default function GymOnlyPage() {
+export default function GymListingPage() {
   const [gyms, setGyms] = useState([]); // To store gyms list
   const [loading, setLoading] = useState(true); // To track data loading
   const [error, setError] = useState(null); // To handle errors

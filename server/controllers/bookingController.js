@@ -2,7 +2,7 @@ const Booking = require('../models/Booking');
 
 // إضافة حجز جديد
    const createBooking = async (req, res) => {
-    const { name, email, phone, bookingDate, selectedPlan, paymentDetails } = req.body;
+    const { name, email, phone, bookingDate, selectedPlan, paymentDetails, gym_id, user_id, type } = req.body;
     
     try {
       const newBooking = await Booking.create({
@@ -14,6 +14,9 @@ const Booking = require('../models/Booking');
         paymentDetails: JSON.stringify(paymentDetails), // تخزين تفاصيل الدفع بصيغة JSON
         paymentStatus: 'completed', // تم الدفع
         status: 'pending', // وضع الحجز
+        gym_id,
+        user_id,
+        type,
       });
       
       res.status(201).json({

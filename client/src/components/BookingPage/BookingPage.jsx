@@ -3,10 +3,14 @@ import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { motion } from 'framer-motion';
+import { useSelector } from "react-redux";
 
 const BookingPage = () => {
   const { id } = useParams(); // ✅ اجلب ID من الرابط فقط
-  console.log("Received ID:", id);  // ✅ افحصي إذا كان ID يصل للمكون
+  console.log("Receiveddddd ID: ", id);  // ✅ افحصي إذا كان ID يصل للمكون
+
+  const userId = useSelector((state) => state.user.id); // ✅ جيب ID من Redux
+  console.log("Receivedddd user_id: ", userId);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -35,7 +39,7 @@ const BookingPage = () => {
     };
 
     fetchPlans();
-  }, [id]); // ✅ استدعاء عند تغيّر ID فقط
+  }, [id, userId]); // ✅ استدعاء عند تغيّر ID فقط
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -53,15 +57,15 @@ const BookingPage = () => {
   const handlePaymentSuccess = async (details, data) => {
     console.log("Payment Successful", details, data);
     alert("Payment successful! Your order will be reviewed to complete the booking process.");
-
-    const userId = localStorage.getItem("user_id"); // افترض أنه تم تخزينه بعد تسجيل الدخول
-
+  
+    console.log("user_id from Redux:", userId);
+    console.log("gym_id from URL:", id);
+  
     if (!userId || !id) {
       alert("An error occurred retrieving user or gym data.");
       return;
     }
-
-    // إرسال البيانات إلى الـ backend لحفظ الحجز
+  
     const bookingData = {
       name: formData.name,
       email: formData.email,
@@ -69,9 +73,9 @@ const BookingPage = () => {
       bookingDate: formData.bookingDate,
       selectedPlan: formData.selectedPlan,
       paymentDetails: details,
-      type: "gym",             // 📌 أضف نوع الحجز
-      gym_id: id,              // 📌 استخدم ID الجيم من useParams
-      user_id: userId          // 📌 اجلب الـ user_id من localStorage
+      type: "gym",
+      gym_id: id,
+      user_id: userId,
     };
   
     try {
@@ -81,7 +85,6 @@ const BookingPage = () => {
       console.error('Error saving booking:', error);
     }
   };
-
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-200 pb-10 pt-23">

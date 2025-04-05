@@ -12,19 +12,35 @@ import {
   JoinUs,
   Navbar,
   Footer,
-  GymOnlyPage,
-  GymIndoorNurseryPage,
-  GymNearbyNurseryPage,
-  IndoorService,
-  NearbyService,
-  OnlyService,
+  GymListingPage,
+  GymIndoorNurseryListingPage,
+  NurseryListingPage,
+  GymIndoorNurseryDetailsPage,
+  NurseryDetailsPage,
+  GymDetailsPage,
   PlansPage,
   GymRegistrationForm,
   BookingPage,
 } from "../src/components";
 
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { setUser } from "./Redux/userSlice"; // ✅ تأكد من المسار
+
+
 
 function App() {
+  const dispatch = useDispatch();
+
+   // ✅ استرجاع بيانات المستخدم من localStorage عند أول تحميل للتطبيق
+   useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      const userData = JSON.parse(storedUser);
+      dispatch(setUser(userData));
+    }
+  }, []);
+
   const router = createBrowserRouter([
     {
       path: "/",
@@ -87,51 +103,51 @@ function App() {
       ),
     },
     {
-      path: "/GymOnlyPage",
+      path: "/GymListingPage",
       element: (
         <>
           <Navbar />
-          <GymOnlyPage />
+          <GymListingPage />
           <Footer />
         </>
       ),
     },
     {
-      path: "/GymIndoorNurseryPage",
+      path: "/GymIndoorNurseryListingPage",
       element: (
         <>
           <Navbar />
-          <GymIndoorNurseryPage />
+          <GymIndoorNurseryListingPage />
           <Footer />
         </>
       ),
     },
     {
-      path: "/GymNearbyNurseryPage",
+      path: "/NurseryListingPage",
       element: (
         <>
           <Navbar />
-          <GymNearbyNurseryPage />
+          <NurseryListingPage />
           <Footer />
         </>
       ),
     },
     {
-      path: "/IndoorService",
+      path: "/GymIndoorNurseryDetailsPage",
       element: (
         <>
           <Navbar />
-          <IndoorService />
+          <GymIndoorNurseryDetailsPage />
           <Footer />
         </>
       ),
     },
     {
-      path: "/NearbyService",
+      path: "/NurseryDetailsPage",
       element: (
         <>
           <Navbar />
-          <NearbyService />
+          <NurseryDetailsPage />
           <Footer />
         </>
       ),
@@ -141,7 +157,7 @@ function App() {
       element: (
         <>
           <Navbar />
-          <OnlyService/>
+          <GymDetailsPage/>
           <Footer />
         </>
       ),

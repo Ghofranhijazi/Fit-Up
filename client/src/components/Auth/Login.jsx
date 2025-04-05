@@ -40,10 +40,16 @@ console.log("Login Form Data:", loginForm);
       console.log("Response from server:", data);
 
       if (response.status === 200) {
-       
-      dispatch(setUser({ id: data.userId, email: data.email }));
-      console.log("User data stored in Redux:", { id: data.userId, email: data.email });
-
+        const userData = { id: data.userId, email: data.email };
+      
+        // ✅ خزّن البيانات في Redux
+        dispatch(setUser(userData));
+      
+        // ✅ خزّن البيانات في localStorage
+        localStorage.setItem("user", JSON.stringify(userData));
+      
+        console.log("User data stored:", userData);
+      
         if (loginForm.email === "admin@gmail.com") {
           navigate("/AdminDash");
         } else {

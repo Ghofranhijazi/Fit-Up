@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default function GymIndoorNurseryPage() {
+export default function GymIndoorNurseryListingPage() {
     return (
         <>
         {/* Hero Section */}
