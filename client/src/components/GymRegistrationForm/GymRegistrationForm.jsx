@@ -123,102 +123,24 @@ const GymRegistrationForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
   
     const validationError = validateForm();
     if (validationError) {
       alert(validationError);
-      setIsSubmitting(false);
       return;
     }
   
     if (!user_id) {
       alert("You must be logged in to submit your request.");
       navigate("/login");
-      setIsSubmitting(false);
       return;
     }
   
-    // Form data processing
-    const form = new FormData();
-    form.append("user_id", user_id);
-    form.append("gymName", formData.gymName);
-    form.append("email", formData.email);
-    form.append("phone", formData.phone);
-    form.append("address", formData.address);
-    form.append("hasIndoorNursery", formData.hasIndoorNursery);
-    form.append("description", formData.description);
-    form.append("openingHour", formData.openingHour);
-    form.append("closingHour", formData.closingHour);
-    form.append("location", JSON.stringify(formData.coordinates));
-    form.append("plans", JSON.stringify(formData.plans));
-    form.append("category", "gym");
-    form.append("trainers", JSON.stringify(
-      formData.trainers.map((trainer, i) => ({
-        name: trainer.name,
-        experience: trainer.experience,
-        photo: trainer.photo ? `trainer-${i}-${trainer.photo.name}` : null,
-      }))
-    ));
+    // حفظ البيانات مؤقتًا في localStorage
+    localStorage.setItem(`userData-${user_id}`, JSON.stringify(formData));
   
-    if (formData.gymPhoto) {
-      form.append("gymPhoto", formData.gymPhoto);
-    }
-    formData.trainers.forEach((trainer, i) => {
-      if (trainer.photo) {
-        form.append(`trainerPhotos`, trainer.photo, `trainer-${i}-${trainer.photo.name}`);
-      }
-      
-    });
-
-    try {
-      const response = await axios.post("http://localhost:5000/api/gyms/add-gym", form, {
-        headers: { "Content-Type": "multipart/form-data", },
-      });
-  
-      if ([200, 201].includes(response.status)) {
-        alert("Form Submitted Successfully!");
-        setStep(1); // Reset step to 1 after successful submission
-        setFormData((prev) => ({
-          ...prev,
-          gymName: "",
-          email: "",
-          phone: "",
-          address: "",
-          hasIndoorNursery: false,
-          description: "",
-          openingHour: "",
-          closingHour: "",
-          location: "",
-          plans: [],
-          price: "",
-          trainers: [{ name: "", experience: "", photo: "" }],
-          coordinates: { lat: 31.963158, lng: 35.930359 },
-        }));
-      } else {
-        alert("Error: " + response.data.message);
-      }
-    
-          // بعد نجاح إضافة الجيم
-  const gymId = response.data.gym.id;
-
-   try    {
-     const publishResponse = await axios.patch(`http://localhost:5000/api/gyms/publish-gym/${gymId}`);
-  if (publishResponse.status === 200) {
-    console.log("Gym published and role updated!");
-    }
-  } catch (err) {
-         console.error("Error publishing gym:", err.response?.data || err.message);
-         console.log("erroooor publishing" + err);
-      } 
-
-
-    } catch (error) {
-      console.error("Submission error:", error.response?.data || error.message);
-      alert("Error: " + (error.response?.data?.message || error.message));
-    } finally {
-      setIsSubmitting(false);
-    }
+    // الانتقال إلى صفحة اختيار الباقة
+    navigate("/choose-plan");
   };
 
   const LocationMarker = ({ setCoordinates }) => {
@@ -594,49 +516,4 @@ export default GymRegistrationForm;
 
 
 
- // const handleTrainerPhotoChange = (index, e) => {
-  //   const updatedTrainers = [...formData.trainers];
-  //   updatedTrainers[index].photo = e.target.files[0];
-  //   setFormData((prev) => ({ ...prev, trainers: updatedTrainers }));
-  // };
-
-  // const handleMapClick = (e) => {
-  //   const { lat, lng } = e.latlng; // استخراج الإحداثيات
-  //   setFormData((prev) => ({
-  //     ...prev,
-  //     coordinates: { lat, lng }, // تحديث الإحداثيات
-  //   }));
-  // };
-
-   // const gymData = {
-    //   ...formData,
-    //   owner: user.id,
-    // };
-
-    // try {
-    //   const response = await axios.post('/api/gyms/add-gym', gymData,{
-    
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //   });
-
-
-                    {/* <input
-                  type="text"
-                  name="location"
-                  placeholder="Location *"
-                  value={formData.location}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#C0526F] focus:border-[#C0526F]"
-                  required
-                /> */}
-               {/* Display Subscription Plans */}
-
-
-                 {/* <input
-                        type="file"
-                        name="photo"
-                        onChange={(e) => handleTrainerPhotoChange(index, e)}
-                        className="w-1/3 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#C0526F] focus:border-[#C0526F]"
-                      /> */}
+ 

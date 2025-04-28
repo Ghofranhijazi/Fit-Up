@@ -20,8 +20,8 @@ export default function Trainers() {
 <section id="services" className="services py-14 ml-8 mr-8">
   {/* Section Title */}
   <div className="container mx-auto text-left mb-12 flex items-center ml-8">
-  <h2 className="text-2m font-light text-gray-500 mr-4">TRAINERS</h2>
-  <div className="h-px bg-[#D3678A] w-40"></div>
+  {/* <h2 className="text-xl font-light text-gray-600 mr-4">TRAINERS</h2>
+  <div className="h-px bg-[#D3678A] w-40"></div> */}
 </div>
 <h2 className="text-center text-4xl font-bold text-[#9C2A46] mb-16">
     MEET OUR BEST TRAINERS

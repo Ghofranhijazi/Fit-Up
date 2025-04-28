@@ -4,9 +4,10 @@ import {
   Register,
   Login,
   Logout,
-  AdminDash,
   Payment,
-  Profile,
+  UserProfile,
+  OwnerProfile,
+  // Profile,
   About,
   Contact,
   JoinUs,
@@ -20,8 +21,18 @@ import {
   GymDetailsPage,
   PlansPage,
   GymRegistrationForm,
+  NurseryRegistrationForm,
   BookingPage,
 } from "../src/components";
+
+import AdminLayout from "./components/AdminDash/AdminLayout";
+import Dashboard from "./components/AdminDash/Dashboard";
+import UsersPage from "./components/AdminDash/UsersPage";
+import BookingsPage from "./components/AdminDash/BookingsPage";
+import ReviewsPage from "./components/AdminDash/ReviewsPage";
+import Analytics from "./components/AdminDash/Analytics";
+import JoinRequests from "./components/AdminDash/JoinRequests";
+
 
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
@@ -63,15 +74,35 @@ function App() {
       ),
     },
     {
-      path: "/Profile",
+      path: "/UserProfile",
       element: (
         <>
           <Navbar />
-          <Profile />
+          <UserProfile />
           <Footer />
         </>
       ),
     },
+    {
+      path: "/OwnerProfile",
+      element: (
+        <>
+          <Navbar />
+          <OwnerProfile />
+          <Footer />
+        </>
+      ),
+    },
+    // {
+    //   path: "/Profile",
+    //   element: (
+    //     <>
+    //       <Navbar />
+    //       <Profile />
+    //       <Footer />
+    //     </>
+    //   ),
+    // },
     {
       path: "/About",
       element: (
@@ -163,7 +194,7 @@ function App() {
       ),
     },
     {
-      path: "/PlansPage",
+      path: "/choose-plan",
       element: (
         <>
           <Navbar />
@@ -178,6 +209,16 @@ function App() {
         <>
           <Navbar />
           <GymRegistrationForm/>
+          <Footer />
+        </>
+      ),
+    },
+    {
+      path: "/NurseryRegistrationForm",
+      element: (
+        <>
+          <Navbar />
+          <NurseryRegistrationForm/>
           <Footer />
         </>
       ),
@@ -205,8 +246,16 @@ function App() {
       element: <Register />,
     },
     {
-      path: "/AdminDash/*",
-      element: <AdminDash />,
+      path: "/admin",
+      element: <AdminLayout />,
+      children: [
+        { index: true, element: <Dashboard /> },
+        { path: "users", element: <UsersPage /> },
+        { path: "bookings", element: <BookingsPage /> },
+        { path: "reviews", element: <ReviewsPage /> },
+        { path: "analytics", element: <Analytics /> },
+        { path: "JoinRequests", element: <JoinRequests /> },
+      ],
     },
   ]);
 

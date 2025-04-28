@@ -32,9 +32,12 @@ export default function GymListingPage() {
     fetchGyms();
   }, []);
 
-  if (loading) {
-    return <div>Loading...</div>; // Show loading state
-  }
+  if (loading) return (
+    <div className="flex justify-center items-center h-screen bg-gradient-to-br from-[#f8f1f3] to-[#f9f9f9]">
+      <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-[#9C2A46]"></div>
+    </div>
+  );
+  
 
   if (error) {
     return <div>{error}</div>; // Show error message if any
@@ -42,35 +45,35 @@ export default function GymListingPage() {
 
   return (
     <>
-      {/* Hero Section with increased height */}
-      <section id="hero" className="relative w-full h-180 flex items-center justify-center text-white">
-        {/* Background Image */}
-        <img
-          className="absolute inset-0 w-full h-full object-cover pt-18"
-          src="https://img.freepik.com/free-photo/medium-shot-fit-woman-training_23-2150169349.jpg?t=st=1743523172~exp=1743526772~hmac=15bb6cc8f6d4c6f995163a7e8ddf9a38f8fabe6d08997c56cf63def625c541d6&w=740"
-          alt="Background"
-        />
-        {/* Overlay with Gradient */}
-        <div className="absolute inset-0" style={{ background: 'rgba(40, 36, 41, 0.8)' }}></div>
-        {/* Hero Content */}
-        <div className="relative z-10 text-center max-w-3xl px-6">
-          <h7 className="text-4xl md:text-5xl font-bold text-center mt-5 animate-fade-up">
-            <span className="text-[#C0526F]" style={{ fontFamily: "'Dancing Script', sans-serif" }}>Sports clubs</span>
-          </h7>
-        </div>
-      </section>
+       {/* Hero Section */}
+       
+       <section id="hero" className="relative w-full h-165 flex items-center justify-center text-white">
+<img
+  className="absolute inset-0 w-full h-full object-cover"
+  src="https://static.spacecrafted.com/fc7241510ec245c5b42e95561258cdcc/i/b91d4ff9b87044a29ca70f1581d0a730/1/4SoifmQpDrHbZJ6Vye3at/VOD_DEC_Web-6%20%25281%2529.jpg?dpr=2"
+  alt="Discover the Best Gyms With Us"
+/>
 
-      {/* Black Section */}
-      <div className="w-full bg-black h-60 py-10 px-4">
-        <div className="max-w-screen-xl mx-auto flex flex-col md:flex-row items-center justify-center h-full">
-          {/* Announcement Text */}
-          <div className="md:w-2/3 text-white text-center mb-5">
-            <p className="text-lg">
-              <span className="font-bold">Welcome to the world of strength and beauty!</span> Discover top women's gyms designed just for you, where energy meets inspiration. With tailored training programs, a vibrant atmosphere, and a supportive community, greatness awaits!
-            </p>
-          </div>
-        </div>
-      </div>
+        {/* Overlay with Gradient */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background: 'rgba(40, 36, 41, 0.7)',
+          }}
+        ></div>
+
+  {/* Hero Content */}
+  <div className="relative z-10 text-center max-w-3xl px-6 mt-15">
+      <h2 className="text-4xl text-[#C0526F] md:text-5xl font-bold mb-4 animate-fade-up" >
+      Our gyms
+      </h2>
+      <span className="text-2xl font-bold">Welcome to the world of strength and beauty!</span>
+            <div className="text-lg mt-2">
+              Discover top women's gyms designed just for you, where energy meets inspiration. With tailored training programs, a vibrant atmosphere, and a supportive community, greatness awaits!
+            </div>
+    </div>
+</section>
+<div className='w-full h-1 bg-[#C0526F]'></div>
 
       {/* Gym Cards Section */}
       <div className="max-w-screen-xl mx-auto py-12 px-4">
@@ -78,30 +81,33 @@ export default function GymListingPage() {
           {gyms && gyms.length > 0 ? (
             gyms.map((gym) => (
               <Link to={`/gym-details/${gym.id}`} key={gym.id}>
-              <div
-                key={gym.id}
-                className="relative overflow-hidden shadow-lg group cursor-pointer transition-shadow duration-500 hover:shadow-2xl"
-                style={{ width: "400px", height: "500px" }}
-              >
-                {/* Check if gymPhoto exists before rendering */}
-                <img
-                  src={gym.gymPhoto ? `http://localhost:5000/uploads/${gym.gymPhoto.replace("\\", "/")}` : 'fallback-image.jpg'}
-                  loading="lazy"
-                  alt="Gym"
-                  className="object-cover w-full h-full transform transition-transform duration-700 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-center justify-center" >
-                  <h3 className="text-white text-3xl text-center font-extrabold transition-transform duration-800 drop-shadow-[0_0_30px_#ffff] group-hover:scale-90 group-hover:drop-shadow-[0_0_30px_#ffff]"
-                  style={{ fontFamily: "'Roboto', sans-serif" }}
-                  >
-                    {gym.gymName || 'Gym Name Unavailable'}
-                  </h3>
-                </div>
-              </div>
-              </Link>
+             <div
+               key={gym.id}
+               className="relative overflow-hidden shadow-md group cursor-pointer transition-shadow duration-300 hover:shadow-xl"
+              style={{ width: "400px", height: "500px", willChange: "transform" }}
+             >
+             <img
+               src={gym.gymPhoto ? `http://localhost:5000/uploads/${gym.gymPhoto.replace("\\", "/")}` : 'fallback-image.jpg'}
+               loading="lazy"
+               decoding="async"
+               alt="Gym"
+              className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
+              style={{ willChange: "transform" }}
+            />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-center justify-center">
+              <h3
+               className="text-white text-3xl text-center font-bold transition duration-300 group-hover:scale-95"
+                style={{ willChange: "transform" }}
+             >
+               {gym.gymName || 'Gym Name'}
+            </h3>
+            </div>
+            </div>
+
+            </Link>
             ))
           ) : (
-            <p>No gyms available</p> // In case of no gyms
+            <p>No gyms available</p> 
           )}
         </div>
       </div>

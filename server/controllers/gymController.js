@@ -1,5 +1,8 @@
-const  Gym  = require('../models/Gym'); // استيراد نموذج الجيم
-const  User  = require('../models/User');
+const db = require('../models');
+const { Gym, User, Payment } = db;
+
+
+
 
 // إضافة جيم جديد
 const addGym = async (req, res) => {
@@ -149,4 +152,31 @@ const getGymPlans = async (req, res) => {
   }
 };
 
-module.exports = { addGym, publishGym, getAllGyms, getGymById, getGymPlans };
+const getPendingGyms = async (req, res) => {
+  try {
+    const gyms = await Gym.findAll({
+      where: { isPublished: false },
+      include: [
+        {
+          model: Payment,
+          as: "payment",
+        },
+        {
+          model: User,
+          as: "user",
+        },
+      ],
+    });
+
+    res.status(200).json({ gyms });
+  } catch (error) {
+    console.error("Error fetching pending gyms:", error);
+    res.status(500).json({
+      message: "Error loading pending gyms",
+      error: error.message,
+    });
+  }
+};
+
+
+module.exports = { addGym, publishGym, getAllGyms, getGymById, getGymPlans, getPendingGyms };

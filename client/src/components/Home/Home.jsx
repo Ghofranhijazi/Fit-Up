@@ -1,17 +1,22 @@
 import React from 'react'
 import OurServices from'./OurServices.jsx'
 import Trainers from'./Trainers.jsx'
-import Membership from'./Membership.jsx'
+import BestGyms from'./BestGyms.jsx'
+import JoinUs from'../JoinUs/JoinUs.jsx'
 import Footer from'../Footer/Footer.jsx'
+import { Link } from "react-router-dom";
 
   export default function Home() {
+
+    
     return (
         <>
         {/* Hero Section */}
        
-  <section id="hero" className="relative w-full h-190 flex items-center  justify-center text-white">
+  <section id="hero" className="relative w-full h-180 flex items-center justify-center text-white">
+   
    {/* Background Video */}
-   <video
+   {/* <video
    className="absolute inset-0 w-full h-full object-cover "
   autoPlay
   loop
@@ -20,7 +25,12 @@ import Footer from'../Footer/Footer.jsx'
 >
   <source src="/videos/mp4.mp4" type="video/mp4" />
   Your browser does not support the video tag.
-</video>
+</video> */}
+<img
+  className="absolute inset-0 w-full h-full object-cover"
+  src="https://static.spacecrafted.com/fc7241510ec245c5b42e95561258cdcc/i/d5e37c3e05f140dc8513b5a1cd0c382f/1/GCuCv726gZycFxatknDdac/5.png?dpr=2"
+  alt="Discover the Best Gyms With Us"
+/>
 
         {/* Overlay with Gradient */}
         <div
@@ -40,16 +50,18 @@ import Footer from'../Footer/Footer.jsx'
       It provides an opportunity to move, strengthen muscles and recharge energy, giving you time for yourself while your baby stays by your side.
       </p>
       <div className="flex justify-center animate-fade-up delay-200">
-        <a href="#about" className="bg-[#C0526F] hover:bg-[#9C2A46] text-white font-bold py-3 px-6 rounded-lg transition-all">
+        <Link to ="/register" className="bg-[#C0526F] hover:bg-[#d1637f] text-white font-bold py-3 px-6 rounded-lg transition-all">
           Get Started
-        </a>
+        </Link>
       </div>
     </div>
 </section>
+<div className='w-full h-1 bg-[#C0526F]'></div>
 
 <OurServices/>
 <Trainers/>
-<Membership/>
+<BestGyms/>
+<JoinUs/>
         </>
     )
 }

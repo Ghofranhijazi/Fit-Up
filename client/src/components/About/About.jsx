@@ -1,28 +1,15 @@
 import React from 'react'
-import { useEffect } from 'react';
-import AOS from "aos";
-import "aos/dist/aos.css";
-
-
 
 export default function About() {
-
-    useEffect(() => {
-        AOS.init({
-            duration: 1000,  
-            once: true,      
-        });
-    }, []);
-
     return (
         <> 
          {/* Hero Section */}
        
-  <section id="hero" className="relative w-full h-130 flex items-center  justify-center text-white">
+  <section id="hero" className="relative w-full h-120 flex items-center  justify-center text-white">
    {/* Background Video */}
    <img
   className="absolute inset-0 w-full h-full object-cover grayscale filter"
-  src="https://img.freepik.com/free-photo/sports-dumbbells-filtered-image-processed-vintage-effect_1232-3417.jpg?uid=R181373975&ga=GA1.1.1709772547.1733645509&semt=ais_hybrid"
+  src="https://static.spacecrafted.com/fc7241510ec245c5b42e95561258cdcc/i/d3cb0726522642d0818ee30b1c5a87ed/1/GCuCv726gZycFxatknDdac/Baby%20Registry%20Campaign%20-%20Landing%20Page%20Headers%2029.png?dpr=2"
   alt="Background"
 />
 
@@ -37,16 +24,17 @@ export default function About() {
 
   {/* Hero Content */}
   <div className="relative z-10 text-center max-w-3xl px-6 mt-25">
-      <h2 className="text-4xl md:text-5xl font-bold mb-4 animate-fade-up" >
+      <h2 className="text-4xl md:text-5xl font-bold mb-7 animate-fade-up" >
        <span className="text-[#C0526F]" style={{ fontFamily: "'Dancing Script', sans-serif"}}>About Us</span>
       </h2>
-      <p className="text-lg md:text-xl font-light mb-6 animate-fade-up delay-100">
+      <p className="text-lg md:text-xl font-light mb-10 animate-fade-up delay-100">
       To become the first platform that enables women to achieve their fitness goals easily while ensuring the safe care of their children.
       </p>
     </div>
 </section>
+<div className='w-full h-1 bg-[#C0526F]'></div>
 
-    <div className="w-full max-w-6xl mx-auto px-4 py-16" data-aos="fade-up" data-aos-delay={500}>
+    <div className="w-full max-w-6xl mx-auto px-4 py-16">
       <div className="flex flex-col md:flex-row items-center gap-8">
         {/* Left side - Images */}
         <div className="w-full md:w-1/2 relative">
@@ -55,9 +43,9 @@ export default function About() {
             <div className="absolute top-0 right-0 z-10 w-24 h-24 md:w-32 md:h-32">
               <svg viewBox="0 0 100 100" className="w-full h-full">
                 <path id="curve" fill="transparent" d="M 25, 50 a 25,25 0 1,1 50,0 a 25,25 0 1,1 -50,0" />
-                <text fill="#000">
+                {/* <text fill="#000">
                   <textPath href="#curve">comprehensive childcare solutions.</textPath>
-                </text>
+                </text> */}
               </svg>
             </div>
             
@@ -99,20 +87,20 @@ export default function About() {
             </p>
           </div>
           
-          <div className="pt-4">
+          {/* <div className="pt-4">
             <button className="bg-[#C0526F] hover:bg-[#9C2A46] text-white px-6 py-3 rounded-lg flex items-center transition-colors">
             Read our article now
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
               </svg>
             </button>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
   
    
-    <section className="py-10 bg-[#f1f4fa] sm:py-16 lg:py-24" data-aos="fade-up" data-aos-delay={500}>
+    <section className="py-10 bg-[#f1f4fa] sm:py-16 lg:py-24">
             <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
                 <div className="max-w-2xl mx-auto text-center">
                     <h2 className="text-3xl font-bold leading-tight text-black sm:text-4xl lg:text-5xl">We work to achieve the following goals:</h2>
@@ -154,7 +142,7 @@ export default function About() {
         </section>
  
 
-        <section className="py-12 bg-white sm:py-16 lg:py-20" data-aos="fade-up" data-aos-delay={500}>
+        <section className="py-12 bg-white sm:py-16 lg:py-20">
     <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
         <div className="text-center">
             <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl xl:text-5xl font-pj">Our Investors & Board of Directors</h2>

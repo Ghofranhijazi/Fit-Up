@@ -6,14 +6,14 @@ import { motion } from 'framer-motion';
 import { useSelector } from "react-redux";
 
 const BookingPage = () => {
-  const { id } = useParams(); // ✅ اجلب ID من الرابط فقط
-  console.log("Receiveddddd ID: ", id);  // ✅ افحصي إذا كان ID يصل للمكون
+  const { id } = useParams();
+  console.log("Receiveddddd ID: ", id);
 
-  const userId = useSelector((state) => state.user.id); // ✅ جيب ID من Redux
+  const userId = useSelector((state) => state.user.id);
   console.log("Receivedddd user_id: ", userId);
 
   const [formData, setFormData] = useState({
-    name: "",
+    username: "",
     email: "",
     phone: "",
     bookingDate: "",
@@ -22,6 +22,7 @@ const BookingPage = () => {
   const [plans, setPlans] = useState([]);
   const [showPaymentSection, setShowPaymentSection] = useState(false);
 
+  // ✅ Fetch gym plans
   useEffect(() => {
     if (!id) {
       console.error("No ID received in BookingPage");
@@ -31,7 +32,7 @@ const BookingPage = () => {
     const fetchPlans = async () => {
       try {
         const response = await axios.get(`http://localhost:5000/api/gyms/${id}/plans`);
-        console.log("Received plans from API:", response.data); // ✅ افحصي البيانات القادمة من السيرفر
+        console.log("Received plans from API:", response.data);
         setPlans(response.data);
       } catch (error) {
         console.error("Error fetching plans:", error);
@@ -39,7 +40,28 @@ const BookingPage = () => {
     };
 
     fetchPlans();
-  }, [id, userId]); // ✅ استدعاء عند تغيّر ID فقط
+  }, [id]);
+
+  // ✅ Fetch user data (username, email) and autofill
+  useEffect(() => {
+    if (!userId) return;
+
+    const fetchUserInfo = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/users/${userId}`);
+        const { username, email } = response.data;
+        setFormData((prev) => ({
+          ...prev,
+          username: username || "",
+          email: email || "",
+        }));
+      } catch (error) {
+        console.error("Error fetching user info:", error);
+      }
+    };
+
+    fetchUserInfo();
+  }, [userId]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -57,17 +79,14 @@ const BookingPage = () => {
   const handlePaymentSuccess = async (details, data) => {
     console.log("Payment Successful", details, data);
     alert("Payment successful! Your order will be reviewed to complete the booking process.");
-  
-    console.log("user_id from Redux:", userId);
-    console.log("gym_id from URL:", id);
-  
+
     if (!userId || !id) {
       alert("An error occurred retrieving user or gym data.");
       return;
     }
-  
+
     const bookingData = {
-      name: formData.name,
+      username: formData.username,
       email: formData.email,
       phone: formData.phone,
       bookingDate: formData.bookingDate,
@@ -77,7 +96,7 @@ const BookingPage = () => {
       gym_id: id,
       user_id: userId,
     };
-  
+
     try {
       const response = await axios.post('http://localhost:5000/api/booking/create', bookingData);
       console.log('Booking saved successfully:', response.data);
@@ -85,7 +104,7 @@ const BookingPage = () => {
       console.error('Error saving booking:', error);
     }
   };
-
+  
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-200 pb-10 pt-23">
       <motion.div
@@ -101,8 +120,8 @@ const BookingPage = () => {
           className="text-center mb-8"
         >
           <div className="flex justify-center mb-4">
-            <div className="bg-[#662480] p-3 rounded-full">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-[#E3007E]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="bg-[#C0526F] p-3 rounded-full">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
@@ -119,7 +138,7 @@ const BookingPage = () => {
           {/* Full Name */}
           <div>
             <label
-              htmlFor="name"
+              htmlFor="username"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
               Full Name
@@ -127,7 +146,7 @@ const BookingPage = () => {
             <div className="relative group">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <svg
-                  className="h-5 w-5 text-gray-400 group-focus-within:text-[#662480] transition-colors duration-200"
+                  className="h-5 w-5 text-gray-400 group-focus-within:text-[#9C2A46] transition-colors duration-200"
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 20 20"
                   fill="currentColor"
@@ -137,12 +156,12 @@ const BookingPage = () => {
               </div>
               <input
                 type="text"
-                id="name"
-                name="name"
-                value={formData.name}
+                id="username"
+                username="username"
+                value={formData.username}
                 onChange={handleChange}
                 required
-                className="block w-full pl-10 py-3 border-gray-300 bg-gray-50 rounded-lg focus:ring-2 focus:ring-[#662480] focus:border-[#662480] text-left transition-all duration-200"
+                className="block w-full pl-10 py-3 border-gray-300 bg-gray-50 rounded-lg focus:ring-2 focus:ring-[#9C2A46] focus:border-[#9C2A46] text-left transition-all duration-200"
                 placeholder="Enter your full name"
               />
             </div>
@@ -159,7 +178,7 @@ const BookingPage = () => {
             <div className="relative group">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <svg
-                  className="h-5 w-5 text-gray-400 group-focus-within:text-[#662480] transition-colors duration-200"
+                  className="h-5 w-5 text-gray-400 group-focus-within:text-[#9C2A46] transition-colors duration-200"
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 20 20"
                   fill="currentColor"
@@ -175,7 +194,7 @@ const BookingPage = () => {
                 value={formData.email}
                 onChange={handleChange}
                 required
-                className="block w-full pl-10 py-3 border-gray-300 bg-gray-50 rounded-lg focus:ring-2 focus:ring-[#662480] focus:border-[#662480] text-left transition-all duration-200"
+                className="block w-full pl-10 py-3 border-gray-300 bg-gray-50 rounded-lg focus:ring-2 focus:ring-[#9C2A46] focus:border-[#9C2A46] text-left transition-all duration-200"
                 placeholder="Enter your email address"
               />
             </div>
@@ -192,7 +211,7 @@ const BookingPage = () => {
             <div className="relative group">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <svg
-                  className="h-5 w-5 text-gray-400 group-focus-within:text-[#662480] transition-colors duration-200"
+                  className="h-5 w-5 text-gray-400 group-focus-within:text-[#9C2A46] transition-colors duration-200"
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 20 20"
                   fill="currentColor"
@@ -207,7 +226,7 @@ const BookingPage = () => {
                 value={formData.phone}
                 onChange={handleChange}
                 required
-                className="block w-full pl-10 py-3 border-gray-300 bg-gray-50 rounded-lg focus:ring-2 focus:ring-[#662480] focus:border-[#662480] text-left transition-all duration-200"
+                className="block w-full pl-10 py-3 border-gray-300 bg-gray-50 rounded-lg focus:ring-2 focus:ring-[#9C2A46] focus:border-[#9C2A46] text-left transition-all duration-200"
                 placeholder="Enter your phone number"
               />
             </div>
@@ -224,7 +243,7 @@ const BookingPage = () => {
             <div className="relative group">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <svg
-                  className="h-5 w-5 text-gray-400 group-focus-within:text-[#662480] transition-colors duration-200"
+                  className="h-5 w-5 text-gray-400 group-focus-within:text-[#9C2A46] transition-colors duration-200"
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 20 20"
                   fill="currentColor"
@@ -239,7 +258,7 @@ const BookingPage = () => {
                 value={formData.bookingDate}
                 onChange={handleChange}
                 required
-                className="block w-full pl-10 py-3 border-gray-300 bg-gray-50 rounded-lg focus:ring-2 focus:ring-[#662480] focus:border-[#662480] text-left transition-all duration-200"
+                className="block w-full pl-10 py-3 border-gray-300 bg-gray-50 rounded-lg focus:ring-2 focus:ring-[#9C2A46] focus:border-[#9C2A46] text-left transition-all duration-200"
               />
             </div>
           </div>
@@ -255,7 +274,7 @@ const BookingPage = () => {
             <div className="relative group">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <svg
-                  className="h-5 w-5 text-gray-400 group-focus-within:text-[#662480] transition-colors duration-200"
+                  className="h-5 w-5 text-gray-400 group-focus-within:text-[#9C2A46] transition-colors duration-200"
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 20 20"
                   fill="currentColor"
@@ -271,7 +290,7 @@ const BookingPage = () => {
                   setFormData({ ...formData, selectedPlan: parseFloat(e.target.value) })
                 }
                 required
-                className="block w-full pl-10 py-3 border-gray-300 bg-gray-50 rounded-lg focus:ring-2 focus:ring-[#662480] focus:border-[#662480] text-left transition-all duration-200 appearance-none"
+                className="block w-full pl-10 py-3 border-gray-300 bg-gray-50 rounded-lg focus:ring-2 focus:ring-[#9C2A46] focus:border-[#9C2A46] text-left transition-all duration-200 appearance-none"
               >
                 <option value="">Select a plan</option>
                 {plans.map((plan, index) => (
@@ -292,7 +311,7 @@ const BookingPage = () => {
             type="submit"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-md text-white bg-gradient-to-r from-[#662480] to-[#E3007E] hover:from-[#E3007E] hover:to-[#662480] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#662480] transform hover:scale-105 transition duration-200"
+            className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-md text-white bg-[#C0526F]  hover:bg-[#d1637f] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#9C2A46] transform transition duration-200"
           >
             Proceed to Payment
           </motion.button>

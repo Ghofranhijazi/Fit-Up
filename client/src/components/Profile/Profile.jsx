@@ -1,7 +1,18 @@
-import React from 'react'
+// import { useSelector } from 'react-redux';
+// import UserProfile from './UserProfile';
+// import OwnerProfile from './OwnerProfile';
 
-export default function Profile() {
-    return (
-        <div>Profile</div>
-    )
-}
+// const Profile = () => {
+//   const userRole = useSelector((state) => state.user.role);
+
+//   console.log('Current role from Redux ****:', userRole);
+
+//   if (!userRole) return <p className="text-center mt-20">Loading profile...</p>;
+
+//   if (userRole === 'user') return <UserProfile />;
+//   if (userRole === 'gymOwner') return <OwnerProfile />;
+
+//   return <p className="text-center mt-20">Unauthorized role</p>;
+// };
+
+// export default Profile;

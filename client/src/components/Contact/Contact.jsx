@@ -5,11 +5,11 @@ export default function Contact() {
 <>
         {/* Hero Section */}
        
-  <section id="hero" className="relative w-full h-130 flex items-center  justify-center text-white">
+  <section id="hero" className="relative w-full h-120 flex items-center  justify-center text-white">
    {/* Background Video */}
    <img
-  className="absolute inset-0 w-full h-full object-cover grayscale filter"
-  src="https://img.freepik.com/free-photo/sports-dumbbells-filtered-image-processed-vintage-effect_1232-3417.jpg?uid=R181373975&ga=GA1.1.1709772547.1733645509&semt=ais_hybrid"
+  className="absolute inset-0 w-full h-full object-cover filter"
+  src="https://img.freepik.com/free-photo/dumbbells-blue-pink-background_23-2147628652.jpg?t=st=1745246002~exp=1745249602~hmac=94dc963ad27133984d2ee725104b1b05faf047b2f59fdfcc1153f0ae8500b4b1&w=1060"
   alt="Background"
 />
 
@@ -21,17 +21,17 @@ export default function Contact() {
             background: 'rgba(40, 36, 41, 0.8)',
           }}
         ></div>
-
-  {/* Hero Content */}
-  <div className="relative z-10 text-center max-w-3xl px-6 mt-25">
-      <h2 className="text-4xl md:text-5xl font-bold mb-4 animate-fade-up" >
-       <span className="text-[#C0526F]" style={{ fontFamily: "'Dancing Script', sans-serif"}}>Contact Us</span>
+ {/* Hero Content */}
+ <div className="relative z-10 text-center max-w-3xl px-6 mt-25">
+      <h2 className="text-4xl md:text-5xl font-bold mb-7 animate-fade-up" >
+       <span className="text-[#C0526F]" style={{ fontFamily: "'Dancing Script', sans-serif"}}>Contact With Us</span>
       </h2>
-      <p className="text-lg md:text-xl font-light mb-6 animate-fade-up delay-100">
+      <p className="text-lg md:text-xl font-light mb-10 animate-fade-up delay-100">
       Contact us anytime, we are always here to to help!
       </p>
     </div>
 </section>
+<div className='w-full h-1 bg-[#C0526F]'></div>
 
 
         <div className="w-full bg-gray-100 py-16 px-4">
@@ -93,7 +93,7 @@ export default function Contact() {
                         type="text"
                         id="name"
                         placeholder="Enter your full name"
-                        className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-pink-100"
                       />
                     </div>
                     
@@ -106,7 +106,7 @@ export default function Contact() {
                         type="email"
                         id="email"
                         placeholder="Enter your full name"
-                        className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-pink-100"
                       />
                     </div>
                     
@@ -119,7 +119,7 @@ export default function Contact() {
                         type="tel"
                         id="phone"
                         placeholder="Enter your full name"
-                        className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-pink-100"
                       />
                     </div>
                     
@@ -132,7 +132,7 @@ export default function Contact() {
                         type="text"
                         id="subject"
                         placeholder="Enter subject"
-                        className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-pink-100"
                       />
                     </div>
                   </div>
@@ -145,14 +145,14 @@ export default function Contact() {
                     <textarea
                       id="message"
                       rows={6}
-                      className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-pink-100"
                     ></textarea>
                   </div>
                   
                   {/* Submit Button */}
                   <button
                     type="submit"
-                    className="w-full bg-[#C0526F] hover:bg-[#9C2A46] text-white font-medium py-3 rounded transition-colors"
+                    className="w-full bg-[#C0526F] hover:bg-[#d1637f] text-white font-medium py-3 rounded transition-colors"
                   >
                     Send
                   </button>

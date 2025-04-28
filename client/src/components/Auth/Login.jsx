@@ -40,7 +40,7 @@ console.log("Login Form Data:", loginForm);
       console.log("Response from server:", data);
 
       if (response.status === 200) {
-        const userData = { id: data.userId, email: data.email };
+        const userData = { id: data.userId, email: data.email, role: data.role };
       
         // ✅ خزّن البيانات في Redux
         dispatch(setUser(userData));
@@ -48,7 +48,7 @@ console.log("Login Form Data:", loginForm);
         // ✅ خزّن البيانات في localStorage
         localStorage.setItem("user", JSON.stringify(userData));
       
-        console.log("User data stored:", userData);
+        console.log("User data storedddd:", userData);
       
         if (loginForm.email === "admin@gmail.com") {
           navigate("/AdminDash");
@@ -82,8 +82,8 @@ console.log("Login Form Data:", loginForm);
           className="text-center mb-8"
         >
           <div className="flex justify-center mb-4">
-            <div className="bg-[#662480] p-3 rounded-full">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-[#E3007E]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="bg-[#C0526F] p-3 rounded-full">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
             </div>
@@ -121,7 +121,7 @@ console.log("Login Form Data:", loginForm);
             <div className="relative group">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <svg
-                  className="h-5 w-5 text-gray-400 group-focus-within:text-[#662480] transition-colors duration-200"
+                  className="h-5 w-5 text-gray-400 group-focus-within:text-[#9C2A46] transition-colors duration-200"
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 20 20"
                   fill="currentColor"
@@ -138,7 +138,7 @@ console.log("Login Form Data:", loginForm);
                 type="email"
                 autoComplete="email"
                 required
-                className="block w-full pl-10 py-3 border-gray-300 bg-gray-50 rounded-lg focus:ring-2 focus:ring-[#662480] focus:border-[#662480] text-left transition-all duration-200"
+                className="block w-full pl-10 py-3 border-gray-300 bg-gray-50 rounded-lg focus:ring-2 focus:ring-[#9C2A46] focus:border-[#9C2A46] text-left transition-all duration-200"
                 placeholder="Enter your email address"
               />
             </div>
@@ -154,7 +154,7 @@ console.log("Login Form Data:", loginForm);
             <div className="relative group">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <svg
-                  className="h-5 w-5 text-gray-400 group-focus-within:text-[#662480] transition-colors duration-200"
+                  className="h-5 w-5 text-gray-400 group-focus-within:text-[#9C2A46] transition-colors duration-200"
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 20 20"
                   fill="currentColor"
@@ -174,7 +174,7 @@ console.log("Login Form Data:", loginForm);
                 type="password"
                 autoComplete="current-password"
                 required
-                className="block w-full pl-10 py-3 border-gray-300 bg-gray-50 rounded-lg focus:ring-2 focus:ring-[#662480] focus:border-[#662480] text-left transition-all duration-200"
+                className="block w-full pl-10 py-3 border-gray-300 bg-gray-50 rounded-lg focus:ring-2 focus:ring-[#9C2A46] focus:border-[#9C2A46] text-left transition-all duration-200"
                 placeholder="Enter your password"
               />
             </div>
@@ -185,7 +185,7 @@ console.log("Login Form Data:", loginForm);
             disabled={loading}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-md text-white bg-gradient-to-r from-[#662480] to-[#E3007E] hover:from-[#E3007E] hover:to-[#662480] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#662480] transform hover:scale-105 transition duration-200"
+            className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-md text-white bg-[#C0526F] hover:bg-[#d1637f] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#9C2A46] transform transition duration-200"
           >
             {loading ? (
               <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -223,7 +223,7 @@ console.log("Login Form Data:", loginForm);
             Don't have an account?{" "}
             <Link
               to="/register"
-              className="font-medium text-[#662480] hover:text-[#E3007E] transition-colors duration-200"
+              className="font-medium text-[#9C2A46] hover:text-[#C0526F] transition-colors duration-200"
             >
               <span className="inline-flex items-center">
                 Create a new account

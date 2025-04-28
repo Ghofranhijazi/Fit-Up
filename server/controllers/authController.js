@@ -1,4 +1,3 @@
-
 const  User  = require('../models/User');
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -42,7 +41,7 @@ const register = async (req, res) => {
         role: newUser.role,
       },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      // { expiresIn: "0" }
     );
 
     console.log(token);
@@ -50,6 +49,8 @@ const register = async (req, res) => {
     res.cookie("token", token, {
       httpOnly: true,
       maxAge: 3600 * 1000,
+      sameSite: "lax",   // ✅ ضروري للمطابقة مع logout
+      path: "/",         // ✅ تحديد المسار
     });
 
     return res.status(201).json({
@@ -71,12 +72,15 @@ const login = async (req, res) => {
    
     const user = await User.findOne({ where: { email } });
     if (!user) {
-      return res.status(409).json({ message: "Invalid credentials" });
+      return res.status(401).json({ message: "Invalid credentials" });
     }
 
+    console.log("401--->> " + password, user.password);
     const isMatch = await bcrypt.compare(password, user.password);
+    
+
     if (!isMatch) {
-      return res.status(409).json({ message: "Invalid credentials" });
+      return res.status(401).json({ message: "Invalid credentials" });
     }
     console.log(user.user_id);
 
@@ -88,18 +92,21 @@ const login = async (req, res) => {
         role: user.role,
       },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      // { expiresIn: "0" }
     );
 
     res.cookie("token", token, {
       httpOnly: true,
       maxAge: 3600 * 1000,
+      sameSite: "lax",   // ✅ ضروري للمطابقة مع logout
+      path: "/",         // ✅ تحديد المسار
     });
 
     return res.status(200).json({
       message: "Login successful",
       userId: user.user_id,
       email: user.email,
+      role: user.role,
     });
   } catch (error) {
     console.error("erroooooooor"+ error);
@@ -109,9 +116,10 @@ const login = async (req, res) => {
 
 const logout = (req, res) => {
   res.clearCookie("token", {
-    httpOnly: true,
-    sameSite: "lax",
-  });
+  httpOnly: true,
+  sameSite: "lax",
+  path: "/",  // ✅ ضروري للمطابقة مع login
+});
   res.json({ message: "Logged out successfully" });
 };
 
@@ -121,114 +129,6 @@ module.exports = { register, login, logout };
 
 
 
-// const client = new OAuth2Client(process.env.CLIENT_ID);
-
-// const { OAuth2Client } = require("google-auth-library");
 
 
 
-
-
-
-
-
-
-
-
-// const googleLogin = async (req, res) => {
-//   const { token } = req.body;
-
-//   try {
-//     const ticket = await client.verifyIdToken({
-//       idToken: token,
-//       audience: process.env.CLIENT_ID, 
-//     });
-
-//     const payload = ticket.getPayload();
-//     const { email, name } = payload;
-
-//     let user = await Users.findOne({ where: { email } });
-
-//     if (!user) {
-//       user = await Users.create({
-//         name,
-//         email,
-//         password: "google",
-//         user_type: "donor",
-//         verified: false, 
-//       });
-//     }
-
-//     const tokenData = {
-//       userId: user.user_id,
-//       email: user.email,
-//       name: user.name,
-//       user_type: user.user_type,
-//     };
-
-//     const jwtToken = jwt.sign(tokenData, process.env.JWT_SECRET, {
-//       expiresIn: "1h",
-//     });
-
-//     res.cookie("token", jwtToken, {
-//       httpOnly: true,
-//       maxAge: 3600 * 1000, // 1 hour
-//     });
-
-//     res.status(200).json({
-//       message: "Login/Registration success",
-//       userId: user.user_id,
-//       user: {
-//         name: user.name,
-//         email: user.email,
-//       },
-//     });
-//   } catch (error) {
-//     console.error("Error verifying token:", error);
-//     res.status(400).json({ message: "Invalid token", error: error.message });
-//   }
-// };
-
-// const googleRegister = async (req, res) => {
-//   const { token } = req.body;
-
-//   try {
-//     const ticket = await client.verifyIdToken({
-//       idToken: token,
-//       audience: process.env.CLIENT_ID,
-//     });
-
-//     const payload = ticket.getPayload();
-//     const { email, name } = payload;
-
-//     let user = await Users.findOne({ where: { email } });
-
-//     if (!user) {
-//       user = await Users.create({
-//         name,
-//         email,
-//         password: "google",
-//         user_type: "donor",
-//         verified: false,
-//       });
-
-//       res.status(201).json({
-//         message: "Google Registration successful",
-//         userId: user.user_id,
-//         user: {
-//           name: user.name,
-//           email: user.email,
-//           profile_picture: user.profile_picture,
-//         },
-//       });
-//     } else {
-//       res.status(409).json({ message: "User already exists" });
-//     }
-//   } catch (error) {
-//     console.error("Error during Google registration:", error);
-//     res.status(400).json({ message: "Invalid token", error: error.message });
-//   }
-// };
-
-
-// , googleLogin, googleRegister

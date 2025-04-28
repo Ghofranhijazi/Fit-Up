@@ -3,9 +3,10 @@ export { default as Navbar } from "../components/NavBar/NavBar.jsx";
 export { default as Register } from "./Auth/Register.jsx";
 export { default as Login } from "./Auth/Login.jsx";
 export { default as Logout } from "./Auth/Logout.jsx";
-export { default as AdminDash } from "./AdminDash/AdminDash.jsx";
 export { default as Payment } from "./Payment/Payment.jsx";
-export { default as Profile } from "./Profile/Profile.jsx";
+export { default as UserProfile } from "./Profile/UserProfile.jsx";
+export { default as OwnerProfile } from "./Profile/OwnerProfile.jsx";
+// export { default as Profile } from "./Profile/Profile.jsx";
 export { default as Footer } from "./Footer/Footer.jsx";
 export { default as About } from "./About/About.jsx";
 export { default as Contact } from "./Contact/Contact.jsx";
@@ -18,5 +19,13 @@ export { default as NurseryDetailsPage } from "./NurseryDetailsPage/NurseryDetai
 export { default as GymDetailsPage } from "./GymDetailsPage/GymDetailsPage.jsx";
 export { default as PlansPage } from "./PlansPage/PlansPage.jsx";
 export { default as GymRegistrationForm } from "./GymRegistrationForm/GymRegistrationForm.jsx";
+export { default as NurseryRegistrationForm } from "./NurseryRegistrationForm/NurseryRegistrationForm.jsx";
 export { default as BookingPage } from "./BookingPage/BookingPage.jsx";
-
+// Admin Dashboard Pages
+export { default as AdminLayout } from "./AdminDash/AdminLayout.jsx";
+export { default as Dashboard } from "./AdminDash/Dashboard.jsx";
+export { default as UsersPage } from "./AdminDash/UsersPage.jsx";
+export { default as BookingsPage } from "./AdminDash/BookingsPage.jsx";
+export { default as ReviewsPage } from "./AdminDash/ReviewsPage.jsx";
+export { default as Analytics } from "./AdminDash/Analytics.jsx";
+export { default as JoinRequests } from "./AdminDash/JoinRequests.jsx";

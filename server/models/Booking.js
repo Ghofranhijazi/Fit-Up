@@ -16,9 +16,9 @@ const Booking = sequelize.define('Booking', {
     type: DataTypes.ENUM('gym', 'nursery'),
     allowNull: true,
   },
-  name: {
+  username: {
     type: DataTypes.STRING,
-    allowNull: true,
+    allowNull: false
   },
   email: {
     type: DataTypes.STRING,
@@ -40,6 +40,11 @@ const Booking = sequelize.define('Booking', {
   bookingDate: {
     type: DataTypes.DATE,
     allowNull: true,
+  },
+  paymentStatus: {
+    type: DataTypes.ENUM('completed', 'pending', 'failed'),
+    allowNull: false,
+    defaultValue: 'pending',
   },
   paymentDetails: {
     type: DataTypes.JSONB,
@@ -67,16 +72,3 @@ module.exports =  Booking ;
 
 
 
-// const mongoose = require('mongoose');
-
-// const bookingSchema = new mongoose.Schema({
-//   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-//   gym: { type: mongoose.Schema.Types.ObjectId, ref: 'Gym' },
-//   nursery: { type: mongoose.Schema.Types.ObjectId, ref: 'Nursery' },
-//   bookingDate: Date,
-//   message: String,
-//   status: { type: String, enum: ['Pending', 'Confirmed', 'Cancelled'], default: 'Pending' },
-//   createdAt: { type: Date, default: Date.now }
-// });
-
-// module.exports = mongoose.model('Booking', bookingSchema);

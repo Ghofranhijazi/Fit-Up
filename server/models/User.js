@@ -1,7 +1,7 @@
-// models/User.js
+// // models/User.js
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database').sequelize;
-// const Booking = require('./Booking');  
+
 
 const User = sequelize.define('User', {
   user_id: { 
@@ -28,37 +28,29 @@ const User = sequelize.define('User', {
     defaultValue: 'user',
     allowNull: false
   },
-  verified: {
-    type: DataTypes.BOOLEAN, // (isApproved) فقط يظهر البروفايل إذا وافق الأدمن
-    defaultValue: false
-  }
+  // verified: {
+  //   type: DataTypes.BOOLEAN, // (isApproved) فقط يظهر البروفايل إذا وافق الأدمن
+  //   defaultValue: false
+  // },
+  phone: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  profileImage: {
+    type: DataTypes.STRING, // Store the image URL or file path here
+    allowNull: true
+  },
+  address: {
+        type: DataTypes.STRING,
+        allowNull: true
+      }
 }, {
   timestamps: true // Adds createdAt and updatedAt automatically
 });
 
+User.associate = (models) => {
+  User.hasMany(models.Comment, { foreignKey: "userId" });
+};
+
 module.exports = User;
 
-
-// تحديد العلاقة بين User و Booking
-// User.hasMany(Booking, { foreignKey: 'user_id' });
-
-
-// Hash password before saving
-// User.beforeCreate(async (user) => {
-//   const salt = await bcrypt.genSalt(10);
-//   user.password = await bcrypt.hash(user.password, salt);
-// });
-
-// Compare password
-// User.prototype.comparePassword = async function (enteredPassword) {
-//   return await bcrypt.compare(enteredPassword, this.password);
-// };
-
-
-
-
-// const userSchema = new mongoose.Schema({
-//   username: { type: String, required: true, unique: true },
-//   email: { type: String, required: true, unique: true },
-//   password: { type: String, required: true },
-// });

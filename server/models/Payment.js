@@ -1,60 +1,47 @@
-// models/Payment.js
 const { DataTypes } = require("sequelize");
-const sequelize = require('../config/database').sequelize; // Import Sequelize connection
-const User = require('./User'); // Import User model
+const sequelize = require("../config/database").sequelize;
 
-const Payment = sequelize.define('Payment', {
-  entityType: {
-    type: DataTypes.ENUM('gym', 'nursery'),
+const Payment = sequelize.define("Payment", {
+  id: {
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
+    primaryKey: true,
+  },
+  user_id: {
+    type: DataTypes.UUID,
     allowNull: false,
   },
-  entityId: {
-    type: DataTypes.INTEGER, // Assuming entityId will reference Gym or Nursery IDs
+  gym_id: {
+    type: DataTypes.UUID,
     allowNull: false,
   },
-  planName: {
+  plan: {
     type: DataTypes.STRING,
-    allowNull: true,
+    allowNull: false,
   },
-  price: {
+  amount: {
     type: DataTypes.FLOAT,
-    allowNull: true,
-  },
-  duration: {
-    type: DataTypes.STRING,
-    allowNull: true,
-  },
-  paymentStatus: {
-    type: DataTypes.ENUM('pending', 'paid'),
-    defaultValue: 'pending',
     allowNull: false,
   },
-  paymentDate: {
-    type: DataTypes.DATE,
-    allowNull: true,
+  status: {
+    type: DataTypes.ENUM("pending", "completed", "failed"),
+    defaultValue: "pending",
   },
+  paypalOrderId: { type: DataTypes.STRING },
+  subscriptionExpiry: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  }
 }, {
-  timestamps: true, // Adds createdAt and updatedAt automatically
+  timestamps: true,
 });
-
-// Define relationship with User
-Payment.belongsTo(User, { foreignKey: 'userId' });
 
 module.exports = Payment;
 
 
-
-// const mongoose = require('mongoose');
-
-// const paymentSchema = new mongoose.Schema({
-//     userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-//     amount: Number,
-//     method: { type: String, enum: ["card", "paypal", "cash"] },
-//     subscriptionType: { type: String, enum: ["monthly", "yearly"] },
-//     status: { type: String, enum: ["success", "failed", "pending"] },
-//     transactionId: String, // من بوابة الدفع
-//     createdAt: { type: Date, default: Date.now }
-//   });
-
-//   module.exports = mongoose.model('Payment', paymentSchema);
-  
+Payment.associate = (models) => {
+  Payment.belongsTo(models.Gym, {
+    foreignKey: "gym_id",
+    as: "gym",
+  });
+};

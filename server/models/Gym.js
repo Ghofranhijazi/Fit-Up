@@ -1,7 +1,6 @@
 // models/Gym.js
 const { DataTypes } = require("sequelize");
 const sequelize = require('../config/database').sequelize; // Import Sequelize connection
-// const Booking = require('./Booking');  
 
 const Gym = sequelize.define('Gym', {
   id: {
@@ -72,5 +71,15 @@ const Gym = sequelize.define('Gym', {
 
 module.exports = Gym;
 
-// تحديد العلاقة بين Gym و Booking
-// Gym.hasMany(Booking, { foreignKey: 'gym_id' });
+Gym.associate = (models) => {
+  Gym.belongsTo(models.User, {
+    foreignKey: 'user_id',
+    as: 'user'
+  });
+
+  Gym.hasMany(models.Payment, {
+    foreignKey: "gym_id",
+    as: "payment",
+  });
+};
+

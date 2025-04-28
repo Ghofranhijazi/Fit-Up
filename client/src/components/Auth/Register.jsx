@@ -62,8 +62,8 @@ export default function Register() {
                 className="w-full max-w-md p-8 space-y-8 bg-white rounded-2xl shadow-xl mx-4"
             >
                 <div className="flex justify-center mb-4">
-                    <div className="bg-[#662480] p-3 rounded-full">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-[#E3007E]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div className="bg-[#C0526F] p-3 rounded-full">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
                     </div>
@@ -95,7 +95,7 @@ export default function Register() {
                             className="group relative"
                         >
                             <div className="flex items-center mb-1 gap-2">
-                                <svg className="w-4 h-4 text-[#662480] mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <svg className="w-4 h-4 text-[#9C2A46] mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                                 </svg>
                                 <label htmlFor="username" className="block text-sm font-medium text-gray-700">
@@ -110,7 +110,7 @@ export default function Register() {
                                 type="text"
                                 autoComplete="username"
                                 required
-                                className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#662480] focus:border-[#662480] transition duration-200"
+                                className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#9C2A46] focus:border-[#9C2A46] transition duration-200"
                                 placeholder="Enter your full name"
                             />
                         </motion.div>
@@ -122,7 +122,7 @@ export default function Register() {
                             className="group relative"
                         >
                             <div className="flex items-center mb-1 gap-2">
-                                <svg className="w-4 h-4 text-[#662480] mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <svg className="w-4 h-4 text-[#9C2A46] mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                                 </svg>
                                 <label htmlFor="email" className="block text-sm font-medium text-gray-700">
@@ -137,7 +137,7 @@ export default function Register() {
                                 type="email"
                                 autoComplete="email"
                                 required
-                                className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#662480] focus:border-[#662480] transition duration-200"
+                                className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#9C2A46] focus:border-[#9C2A46] transition duration-200"
                                 placeholder="Enter your email address"
                             />
                         </motion.div>
@@ -149,7 +149,7 @@ export default function Register() {
                             className="group relative"
                         >
                             <div className="flex items-center mb-1 gap-2">
-                                <svg className="w-4 h-4 text-[#662480] mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <svg className="w-4 h-4 text-[#9C2A46] mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                                 </svg>
                                 <label htmlFor="password" className="block text-sm font-medium text-gray-700">
@@ -164,21 +164,20 @@ export default function Register() {
                                 type="password"
                                 autoComplete="new-password"
                                 required
-                                className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#662480] focus:border-[#662480] transition duration-200"
+                                className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#9C2A46] focus:border-[#9C2A46] transition duration-200"
                                 placeholder="Enter your password"
                             />
                         </motion.div>
                     </div>
 
                     <motion.div
-                        initial={{ y: 10, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{ delay: 0.6, duration: 0.3 }}
+                       whileHover={{ scale: 1.02 }}
+                       whileTap={{ scale: 0.98 }}
                     >
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-md text-white bg-gradient-to-r from-[#662480] to-[#E3007E] hover:from-[#E3007E] hover:to-[#662480] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#662480] transform hover:scale-105 transition duration-200"
+                            className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-md text-white bg-[#C0526F] hover:bg-[#d1637f] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#9C2A46] transform transition duration-200"
                         >
                             {isLoading ? (
                                 <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -202,7 +201,7 @@ export default function Register() {
                 >
                     <p className="text-sm text-gray-600">
                         Already have an account?{" "}
-                        <Link to="/login" className="font-medium text-[#662480] hover:text-[#E3007E] transition duration-200">
+                        <Link to="/login" className="font-medium text-[#9C2A46] hover:text-[#C0526F] transition duration-200">
                             Log In
                         </Link>
                     </p>
