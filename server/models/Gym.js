@@ -69,8 +69,6 @@ const Gym = sequelize.define('Gym', {
   timestamps: true, // Adds createdAt and updatedAt automatically
 });
 
-module.exports = Gym;
-
 Gym.associate = (models) => {
   Gym.belongsTo(models.User, {
     foreignKey: 'user_id',
@@ -81,5 +79,31 @@ Gym.associate = (models) => {
     foreignKey: "gym_id",
     as: "payment",
   });
+
+  Gym.hasMany(models.Booking, {
+    foreignKey: "gym_id",
+    as: "bookings"
+  });
 };
+
+module.exports = Gym;
+
+// Gym.associate = (models) => {
+//   Gym.belongsTo(models.User, {
+//     foreignKey: 'user_id',
+//     as: 'user'
+//   });
+
+//   Gym.hasMany(models.Payment, {
+//     foreignKey: "gym_id",
+//     as: "payment",
+//   });
+// };
+
+// Gym.associate = (models) => {
+//   Gym.hasMany(models.Booking, { foreignKey: "gym_id", as: "bookings" });
+// };
+
+
+
 

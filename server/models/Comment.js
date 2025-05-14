@@ -25,7 +25,11 @@ const Comment = sequelize.define("Comment", {
   },
   gymId: {
     type: DataTypes.UUID,
-    allowNull: false,
+    allowNull: true,
+  },
+  nurseryId: {
+    type: DataTypes.UUID,
+    allowNull: true,  // We allow null here for gyms
   },
 }, {
   timestamps: true,

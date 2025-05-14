@@ -33,7 +33,7 @@ export default function OurServices() {
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
       
       {/* Service Item 1 */}
-     <Link to ="/GymListingPage">
+      <Link to="/GymListingPage?category=Gym only">
         <div className="img overflow-hidden rounded-lg">
           <img src="/images/serv1.jpg" className="w-full h-70 object-cover transition-transform duration-500 hover:scale-110" alt="" />
         </div>
@@ -42,7 +42,7 @@ export default function OurServices() {
           <CgGym style={{ fontSize: "35px" }}/>
           
           </div>
-         <Link to ="/GymListingPage" className="block mt-4 text-xl font-semibold text-[#9C2A46] hover:text-[#D3678A]">
+         <Link to="/GymListingPage?category=Gym only" className="block mt-4 text-xl font-semibold text-[#9C2A46] hover:text-[#D3678A]">
             Gym Only
           </Link>
           <p className="text-gray-600 mt-2 text-sm">
@@ -52,7 +52,7 @@ export default function OurServices() {
       </Link>
       
       {/* Service Item 2 */}
-      <Link to ="/GymIndoorNurseryListingPage">
+     <Link to="/GymListingPage?category=Gym with indoor nursery">
         <div className="img overflow-hidden rounded-lg">
           <img src="/images/serv2.jpg" className="w-full h-70 object-cover transition-transform duration-500 hover:scale-110" alt="" />
         </div>
@@ -60,7 +60,7 @@ export default function OurServices() {
         <div className="icon w-16 h-16 bg-[#D3678A] text-white border-2 border-white rounded-full flex items-center justify-center text-2xl absolute top-[-30px] left-1/2 transform -translate-x-1/2 transition-all duration-400 hover:bg-white hover:text-[#D3678A] hover:border-[#D3678A]">
           <MdOutlineSportsGymnastics style={{ fontSize: "35px" }}/>
           </div>
-         <Link to ="/GymIndoorNurseryListingPage" className="block mt-4 text-xl font-semibold text-[#9C2A46] hover:text-[#D3678A]">
+          <Link to="/GymListingPage?category=Gym with indoor nursery" className="block mt-4 text-xl font-semibold text-[#9C2A46] hover:text-[#D3678A]">
             Gym with Indoor Nursery
           </Link>
           <p className="text-gray-600 mt-2 text-sm">

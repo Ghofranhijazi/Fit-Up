@@ -1,15 +1,25 @@
+
 // models/Nursery.js
 const { DataTypes } = require("sequelize");
-const sequelize = require('../config/database').sequelize; // Import Sequelize connection
-const User = require('./User'); // Import User model
+const sequelize = require('../config/database').sequelize;
 
 const Nursery = sequelize.define('Nursery', {
+  id: {
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
+    allowNull: false,
+    primaryKey: true,
+  },
+  user_id: {
+    type: DataTypes.UUID,
+    allowNull: true,
+  },
   nurseryName: {
     type: DataTypes.STRING,
     allowNull: false,
   },
   description: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
     allowNull: true,
   },
   address: {
@@ -20,7 +30,23 @@ const Nursery = sequelize.define('Nursery', {
     type: DataTypes.STRING,
     allowNull: true,
   },
-  photo: {
+  email: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  services: {
+    type: DataTypes.JSON,
+    allowNull: true,
+  },
+  additionalServices: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+  },
+  category: {
+    type: DataTypes.ENUM('nursery', 'daycare'),
+    defaultValue: 'nursery',
+  },
+  nurseryPhoto: {
     type: DataTypes.STRING,
     allowNull: true,
   },
@@ -32,62 +58,64 @@ const Nursery = sequelize.define('Nursery', {
     type: DataTypes.STRING,
     allowNull: true,
   },
+  capacity: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  minAge: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  maxAge: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
   location: {
-    type: DataTypes.JSON, // Use JSON to store latitude and longitude
+    type: DataTypes.JSON,
     allowNull: true,
   },
-  planName: {
-    type: DataTypes.STRING,
+  documents: {
+    type: DataTypes.JSON,
     allowNull: true,
-  },
-  planPrice: {
-    type: DataTypes.FLOAT,
-    allowNull: true,
-  },
-  planDuration: {
-    type: DataTypes.ENUM('Monthly', 'Yearly'),
-    defaultValue: 'Monthly',
   },
   isPublished: {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
   },
 }, {
-  timestamps: true, // Adds createdAt and updatedAt automatically
+  timestamps: true,
 });
 
-// Define relationship with User
-Nursery.belongsTo(User, { foreignKey: 'ownerId' });
+Nursery.associate = (models) => {
+  Nursery.belongsTo(models.User, {
+    foreignKey: 'user_id',
+    as: 'user'
+  });
+
+  Nursery.hasMany(models.Payment, {
+    foreignKey: "nursery_id",
+    as: "payment",
+  });
+
+  Nursery.hasMany(models.Booking, {
+    foreignKey: "nursery_id",
+    as: "bookings"
+  });
+};
 
 module.exports = Nursery;
 
+// Nursery.associate = (models) => {
+//   Nursery.belongsTo(models.User, {
+//     foreignKey: 'user_id',
+//     as: 'user'
+//   });
 
-
-
-
-
-// const mongoose = require('mongoose');
-
-// const nurserySchema = new mongoose.Schema({
-//   name: { type: String, required: true },
-//   address: { type: String, required: true },
-//   description: String,
-//   workingHours: {
-//     openingTime: String,
-//     closingTime: String,
-//   },
-//   pricing: [{
-//     planName: String,
-//     price: Number,
-//     duration: String,
-//   }],
-//   coordinates: { 
-//     latitude: Number, 
-//     longitude: Number 
-//   },
-//   photos: [String],
-//   approved: { type: Boolean, default: false }, // for admin approval
-//   createdAt: { type: Date, default: Date.now }
-// });
-
-// module.exports = mongoose.model('Nursery', nurserySchema);
+//   Nursery.hasMany(models.Payment, {
+//     foreignKey: "nursery_id",
+//     as: "payment",
+//   });
+// };
+// Nursery.associate = (models) => {
+//   Nursery.hasMany(models.Booking, { foreignKey: "nursery_id", as: "bookings" });
+// };

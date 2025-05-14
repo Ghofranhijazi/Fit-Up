@@ -51,7 +51,7 @@ console.log("Login Form Data:", loginForm);
         console.log("User data storedddd:", userData);
       
         if (loginForm.email === "admin@gmail.com") {
-          navigate("/AdminDash");
+          navigate("/admin");
         } else {
           navigate("/");
         }

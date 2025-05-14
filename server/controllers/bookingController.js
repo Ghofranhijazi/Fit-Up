@@ -1,8 +1,12 @@
 const Booking = require('../models/Booking'); 
+const User  = require('../models/User');
+const Gym = require('../models/Gym');
+const Nursery = require('../models/Nursery');
+
 
 // إضافة حجز جديد
    const createBooking = async (req, res) => {
-    const { username, email, phone, bookingDate, selectedPlan, paymentDetails, gym_id, user_id, type } = req.body;
+    const { username, email, phone, bookingDate, selectedPlan, paymentDetails, gym_id, nursery_id, user_id, type } = req.body;
     
     try {
       const newBooking = await Booking.create({
@@ -10,11 +14,12 @@ const Booking = require('../models/Booking');
         email,
         phone,
         bookingDate,
-        selectedPlan,
+        selectedPlan: type === "gym" ? selectedPlan : null,
         paymentDetails: JSON.stringify(paymentDetails), // تخزين تفاصيل الدفع بصيغة JSON
         paymentStatus: 'completed', // تم الدفع
         status: 'pending', // وضع الحجز
-        gym_id,
+        gym_id: type === "gym" ? gym_id : null,
+        nursery_id: type === "nursery" ? nursery_id : null,
         user_id,
         type,
       });
@@ -36,12 +41,13 @@ const Booking = require('../models/Booking');
   const getAllBookings = async (req, res) => {
     try {
       const bookings = await Booking.findAll({
-        include: [
-          { model: require("../models/User"), attributes: ["username", "email"] },
-          { model: require("../models/Gym"), attributes: ["gymName"] }
-        ],
-        order: [["createdAt", "DESC"]],
-      });
+  include: [
+     { model: User, as: "user", attributes: ["username", "email"] },  // هنا استخدمنا alias "user"
+     { model: Gym, as: "gym", attributes: ["gymName"] },  // هنا استخدمنا alias "gym"
+     { model: Nursery, as: "nursery", attributes: ['nurseryName'] } 
+  ],
+  order: [["createdAt", "DESC"]],
+});
       res.status(200).json(bookings);
     } catch (error) {
       console.error("Error fetching bookings:", error);

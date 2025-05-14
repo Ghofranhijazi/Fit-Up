@@ -9,6 +9,7 @@ const { sequelize } = require("./config/database");
 // Routes
 const authRoutes = require('./routes/authRoutes');
 const gymRoutes = require('./routes/gymRoutes');
+const nurseryRoutes = require('./routes/nurseryRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
 const userRoutes = require('./routes/userRoutes');
 const commentRoutes = require("./routes/commentRoutes");
@@ -29,13 +30,14 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
+    // origin: '*',  // Allow any origin (for testing)
     origin: "http://localhost:5173",
     credentials: true, // Allow credentials (cookies)
   })
 );
-// app.use("/uploads", express.static("uploads"));
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// app.use('/uploads', express.static('uploads'));
 
 app.use((err, req, res, next) => {
   console.error("Error in file upload:", err);
@@ -54,10 +56,12 @@ sequelize
 
 app.use('/api/auth', authRoutes);
 app.use('/api/gyms', gymRoutes);
+app.use('/api/nurseries', nurseryRoutes);
 app.use('/api/booking', bookingRoutes);
 app.use('/api', userRoutes);
 app.use("/api/comment", commentRoutes);
-app.use("/api", paymentRoutes);
+app.use("/api/payment", paymentRoutes);
+
 
 // تشغيل السيرفر
 app.listen(PORT, () => {

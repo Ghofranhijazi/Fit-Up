@@ -1,6 +1,6 @@
 const express = require('express');
 const gymRoutes = express.Router();
-const { addGym, publishGym, getAllGyms, getGymById, getGymPlans, getPendingGyms } = require("../controllers/gymController");
+const { addGym, publishGym, getAllGyms, getGymById, getGymPlans, getPendingGyms, getNearestNursery } = require("../controllers/gymController");
 const upload = require('../Middlewares/upload');
 
 // ✅ إضافة جيم
@@ -27,5 +27,7 @@ gymRoutes.get('/:id/plans', getGymPlans);
 
 // ✅ جلب تفاصيل جيم واحد
 gymRoutes.get('/:id', getGymById);
+// Route to get nearest nursery based on gym location
+gymRoutes.get("/:gymId/nearest-nursery", getNearestNursery);
 
 module.exports = gymRoutes;

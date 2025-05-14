@@ -14,6 +14,7 @@ fs.readdirSync(__dirname)
   .forEach(file => {
     const model = require(path.join(__dirname, file)); // فقط require
     db[model.name] = model;
+    // db[model.name || path.basename(file, '.js')] = model;
   });
 
 Object.keys(db).forEach(modelName => {

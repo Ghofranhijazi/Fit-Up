@@ -23,11 +23,22 @@ const nurseryIcon = new L.Icon({
   className: "nursery-marker"
 });
 
+function randomNearbyLocation(baseLat, baseLng) {
+  const offset = () => (Math.random() - 0.5) * 0.01; // فرق عشوائي بسيط
+  return {
+    lat: baseLat + offset(),
+    lng: baseLng + offset()
+  };
+}
+
+
 export default function GymDetailsPage() {
   const { id } = useParams();
   const [gym, setGym] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showNursery, setShowNursery] = useState(false);
+  const [nearestNursery, setNearestNursery] = useState(null);
+
   const navigate = useNavigate();
   // داخل الكومبوننت
 const [comments, setComments] = useState([]);
@@ -67,12 +78,8 @@ const handleSubmit = async (e) => {
 
     await axios.post(
       `http://localhost:5000/api/comment/gyms/${id}/comments`,
-      {
-        text: newComment,
-        rating,
-        // username: user.username, 
-        // userId: user.id, 
-      },
+      
+      { text: newComment, rating }, // إرسال النص والتقييم فقط
       { withCredentials: true }
     );
 
@@ -92,6 +99,8 @@ const handleSubmit = async (e) => {
       try {
         const response = await axios.get(`http://localhost:5000/api/gyms/${id}`);
         setGym(response.data.gym);
+        console.log('Gymmmmmm dataaaaaaaaaaaaaaa:', response.data.gym);
+
       } catch (error) {
         console.error("Error fetching gym details:", error);
       } finally {
@@ -114,31 +123,66 @@ const handleSubmit = async (e) => {
     </div>
   );
 
-  const nearestNursery = {
-    lat: gym.location.lat + 0.002,
-    lng: gym.location.lng + 0.002,
-  };
+  // const nearestNursery = {
+  //   lat: gym.location.lat + 0.002,
+  //   lng: gym.location.lng + 0.002,
+  // };
 
-  const handleShowNursery = () => {
-    setShowNursery(true);
-    // Modern toast notification
-    const toast = document.createElement('div');
-    toast.className = 'fixed bottom-6 right-6 bg-[#9C2A46] text-white px-6 py-3 rounded-lg shadow-xl flex items-center animate-fade-in z-50';
-    toast.innerHTML = `
+  
+  const handleShowNursery = async () => {
+    if (!gym || !gym.location) {
+      alert("Gym location is missing.");
+      return;
+    }
+  
+    try {
+      const response = await axios.get(`/api/gyms/${id}/nearest-nursery`);
+      const nursery = response.data?.nursery;
+  
+      if (nursery && nursery.location) {
+        setNearestNursery(nursery.location);
+  
+        const toast = document.createElement("div");
+        toast.className =
+          "fixed bottom-6 right-6 bg-[#9C2A46] text-white px-6 py-3 rounded-lg shadow-xl flex items-center animate-fade-in z-50";
+        // toast.innerHTML = `Nearest nursery to ${gym.gymName} is now shown on the map`;
+        toast.innerHTML = `
       <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
       Nearest nursery to ${gym.gymName} is now shown on the map
     `;
     document.body.appendChild(toast);
-    setTimeout(() => {
-      toast.classList.add('animate-fade-out');
-      setTimeout(() => toast.remove(), 300);
-    }, 3500);
+  
+        setTimeout(() => {
+          toast.classList.add("animate-fade-out");
+          setTimeout(() => toast.remove(), 300);
+        }, 3500);
+  
+      } else {
+        // لا توجد حضانة قريبة، نولد موقع عشوائي قريب
+        const fakeLocation = randomNearbyLocation(gym.location.lat, gym.location.lng);
+        setNearestNursery(fakeLocation);
+        alert(`Nearest nursery to ${gym.gymName} is now shown on the map`);
+      }
+  
+      setShowNursery(true);
+  
+    } catch (err) {
+      console.error("Error fetching nearest nursery", err);
+      alert("Failed to retrieve nursery. Showing a simulated one.");
+  
+      // fallback في حال السيرفر فشل
+      const fallbackLocation = randomNearbyLocation(gym.location.lat, gym.location.lng);
+      setNearestNursery(fallbackLocation);
+      setShowNursery(true);
+    }
   };
-
+  
+  
+  
   const handleBookNow = () => {
-    navigate(`/Booking/${id}`, {
+   navigate(`/Booking/gym/${id}`, {
       state: { gymName: gym.gymName, plans: gym.plans },
     });
   };
@@ -179,46 +223,75 @@ const handleSubmit = async (e) => {
 
       {/* Main Content */}
       <div className="container mx-auto px-6 py-12 -mt-10 relative z-20">
-        <div className="flex flex-col lg:flex-row gap-10 mt-10">
-          {/* Left Column - Image & Actions */}
-          <div className="lg:w-1/2">
-            <div className="rounded-2xl overflow-hidden shadow-2xl border-4 border-white transform transition-transform duration-300">
-              <img
-                src={`http://localhost:5000/uploads/${gym.gymPhoto.replace("\\", "/")}`}
-                className="w-full h-96 object-cover"
-                alt={gym.gymName}
-              />
-            </div>
-
-            {/* Action Buttons */}
-            <div className="mt-8 flex flex-col sm:flex-row gap-5">
-              <button
-                onClick={handleBookNow}
-                className="flex-1 bg-[#C0526F]  hover:bg-[#d1637f] text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center group"
-              >
-                <span className="mr-2  transition-transform">Book Now</span>
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
-              </button>
-              <button
-                onClick={handleShowNursery}
-                className="flex-1 bg-white border-2 border-[#C0526F] text-[#C0526F] hover:bg-[#f8e8eb] font-semibold py-4 px-6 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center group"
-              >
-                <span className="mr-2  transition-transform">Nearest Nursery</span>
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-                </svg>
-              </button>
-            </div>
-
-            {/* Gym Description */}
-            <div className="mt-10 bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-              <h3 className="text-2xl font-bold text-gray-800 mb-6 pb-2 border-b border-gray-200">About Our Gym</h3>
-              <p className="text-gray-600 leading-relaxed text-lg">{gym.description}</p>
-            </div>
+  <div className="flex flex-col lg:flex-row gap-10 mt-10">
+    {/* Left Column - Image & Actions */}
+    <div className="lg:w-1/2 relative">
+      {/* Nursery Badge - Positioned over image */}
+      {gym.hasIndoorNursery && (
+        <div className="absolute top-4 right-4 z-10 group">
+          <div className="bg-[#9C2A46] text-white px-4 py-2 rounded-lg shadow-xl border border-[#C0526F]/40 flex items-center gap-2 transition-all duration-300 hover:bg-[#8A243D] hover:shadow-2xl">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            <span className="font-medium">Indoor Nursery Available</span>
           </div>
+          <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#C0526F] to-transparent opacity-80 transition-all duration-500 group-hover:opacity-100"></div>
+        </div>
+      )}
 
+      <div className="rounded-2xl overflow-hidden shadow-2xl border-4 border-white transform transition-transform duration-300">
+        <img
+          src={`http://localhost:5000/uploads/${gym.gymPhoto.replace("\\", "/")}`}
+          className="w-full h-96 object-cover"
+          alt={gym.gymName}
+        />
+      </div>
+
+      {/* Action Buttons */}
+      <div className="mt-8 flex flex-col sm:flex-row gap-5">
+        <button
+          onClick={handleBookNow}
+          className="flex-1 bg-[#C0526F] hover:bg-[#d1637f] text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center group"
+        >
+          <span className="mr-2 transition-transform">Book Now</span>
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+          </svg>
+        </button>
+       
+              {/* Only show Nearest Nursery button if no indoor nursery */}
+              {!gym.hasIndoorNursery && (
+                <button
+                  onClick={handleShowNursery}
+                  className="flex-1 bg-white border-2 border-[#C0526F] text-[#C0526F] hover:bg-[#f8e8eb] font-semibold py-4 px-6 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center group"
+                >
+                  <span className="mr-2 transition-transform">Nearest Nursery</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" />
+                  </svg>
+                </button>
+              )}
+      </div>
+
+      {/* Gym Description */}
+      <div className="mt-10 bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+        <h3 className="text-2xl font-bold text-gray-800 mb-6 pb-2 border-b border-gray-200">About Our Gym</h3>
+        <p className="text-gray-600 leading-relaxed text-lg">{gym.description}</p>
+        
+        {/* Secondary Nursery Indicator */}
+        {gym.hasIndoorNursery && (
+          <div className="mt-6 pt-4 border-t border-gray-100">
+            <div className="inline-flex items-center bg-[#f8f0f2] px-4 py-2 rounded-full text-[#9C2A46]">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+              </svg>
+              <span className="font-medium">Childcare services available on-site</span>
+            </div>
+            <p className="mt-2 text-gray-600 text-sm">Our indoor nursery is staffed with certified professionals and available during all operating hours.</p>
+          </div>
+        )}
+      </div>
+    </div>
           {/* Right Column - Gym Info */}
           <div className="lg:w-1/2">
             <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 h-170">
@@ -300,11 +373,17 @@ const handleSubmit = async (e) => {
               <Marker position={gym.location} icon={gymIcon}>
                 <Popup className="custom-popup font-bold text-[#9C2A46]">{gym.gymName}</Popup>
               </Marker>
-              {showNursery && (
+              {/* {showNursery && (
                 <Marker position={nearestNursery} icon={nurseryIcon}>
                   <Popup className="custom-popup font-bold text-[#9C2A46]">Nearest Nursery</Popup>
                 </Marker>
-              )}
+              )} */}
+              {showNursery && (
+           <Marker position={nearestNursery} icon={nurseryIcon}>
+           <Popup className="custom-popup font-bold text-[#9C2A46]">Nearest Nursery</Popup>
+           </Marker>
+             )}
+
             </MapContainer>
             <div className="absolute bottom-4 right-4 bg-white px-4 py-2 rounded-lg shadow-md z-10 flex items-center">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#C0526F]" viewBox="0 0 20 20" fill="currentColor">
@@ -368,8 +447,8 @@ const handleSubmit = async (e) => {
     
     <button
       type="submit"
-      className="bg-gradient-to-r from-[#9C2A46] to-[#C0526F] hover:from-[#C0526F] hover:to-[#9C2A46] text-white font-semibold py-3 px-8 rounded-lg shadow-md transition-all duration-300 transform hover:scale-[1.02] flex items-center"
-    >
+      className="bg-[#C0526F]  hover:bg-[#d1637f] text-white font-semibold py-3 px-8 rounded-lg shadow-md transition-all duration-300 transform  flex items-center"
+    >    
       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
         <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd" />
       </svg>
@@ -492,3 +571,24 @@ const handleSubmit = async (e) => {
     </div>
   );
 }
+
+
+
+
+// const handleShowNursery = () => {
+  //   setShowNursery(true);
+  //   // Modern toast notification
+  //   const toast = document.createElement('div');
+  //   toast.className = 'fixed bottom-6 right-6 bg-[#9C2A46] text-white px-6 py-3 rounded-lg shadow-xl flex items-center animate-fade-in z-50';
+  //   toast.innerHTML = `
+  //     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  //       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+  //     </svg>
+  //     Nearest nursery to ${gym.gymName} is now shown on the map
+  //   `;
+  //   document.body.appendChild(toast);
+  //   setTimeout(() => {
+  //     toast.classList.add('animate-fade-out');
+  //     setTimeout(() => toast.remove(), 300);
+  //   }, 3500);
+  // };

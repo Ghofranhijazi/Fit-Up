@@ -1,5 +1,6 @@
 const User  = require('../models/User');
 const Gym = require('../models/Gym');
+const Nursery = require('../models/Nursery');
 const Booking = require('../models/Booking');
 
 // جلب بيانات المستخدم أو الأونر
@@ -19,7 +20,7 @@ exports.getProfile = async (req, res) => {
     if (!user) return res.status(404).json({ message: 'User not found' });
 
     // ممكن تضيفي شرط حسب نوع المستخدم إذا حابة
-    if (user.role !== 'user' && user.role !== 'gymOwner') {
+    if (user.role !== 'user' && user.role !== 'gymOwner' && user.role !== 'nurseryOwner'){
       return res.status(403).json({ message: 'Access denied' });
     }
 
@@ -41,7 +42,7 @@ exports.updateProfile = async (req, res) => {
     if (!user) return res.status(404).json({ message: 'User not found' });
 
     // ممكن تضيفي شرط حسب نوع المستخدم إذا حابة
-    if (user.role !== 'user' && user.role !== 'gymOwner') {
+    if (user.role !== 'user' && user.role !== 'gymOwner' && user.role !== 'nurseryOwner') {
       return res.status(403).json({ message: 'Access denied' });
     }
 
@@ -75,19 +76,48 @@ exports.getOwnerBookings = async (req, res) => {
     // جلب الحجوزات المرتبطة بهذه الجيمات
     const bookings = await Booking.findAll({
       where: { gym_id: gymIds },
-      include: [
-        { model: User, attributes: ['username', 'email'] },
-        { model: Gym, attributes: ['gymName'] }
-      ],
+       include: [
+    { model: User, as: "user", attributes: ['username', 'email', 'phone'] }, // ✅ استخدم alias الصحيح
+    { model: Gym, as: "gym", attributes: ['gymName', 'address'] }      
+  ],
       order: [['createdAt', 'DESC']]
     });
-
+    // console.log(bookings);
     res.json(bookings);
   } catch (error) {
     console.error('Error fetching owner bookings:', error);
     res.status(500).json({ message: 'Error fetching bookings', error: error.message });
   }
 };
+
+
+// عرض الحجوزات الخاصة بحضانات يملكها صاحب الحضانة
+exports.getNurseryBookings = async (req, res) => {
+  const { nurseryOwnerId } = req.params;
+
+  try {
+    // جلب كل الحضانات التي يملكها هذا الـ Owner
+    const nurseries = await Nursery.findAll({ where: { user_id: nurseryOwnerId } });
+
+    const nurseryIds = nurseries.map((nursery) => nursery.id);
+
+    // جلب الحجوزات المرتبطة بهذه الحضانات
+    const bookings = await Booking.findAll({
+      where: { nursery_id: nurseryIds },
+      include: [
+        { model: User, as: "user", attributes: ['username', 'email', 'phone'] },
+        { model: Nursery, as: "nursery", attributes: ['nurseryName', 'address'] } 
+      ],
+      order: [['createdAt', 'DESC']]
+    });
+    console.log(bookings);
+    res.json(bookings);
+  } catch (error) {
+    console.error('Error fetching nursery owner bookings:', error);
+    res.status(500).json({ message: 'Error fetching bookings', error: error.message });
+  }
+};
+
 
 
 
@@ -98,10 +128,12 @@ exports.updateBookingStatus = async (req, res) => {
   try {
     const booking = await Booking.findByPk(bookingId, {
       include: [
-        { model: User, attributes: ['username', 'email'] },
-        { model: Gym, attributes: ['gymName'] }
+        { model: User, as: "user", attributes: ['username', 'email'] },
+        { model: Gym, as: "gym", attributes: ['gymName'] }, 
+        { model: Nursery, as: "nursery", attributes: ['nurseryName'] } // تضمين بيانات الحضانة
       ]
     });
+
     if (!booking) return res.status(404).json({ message: 'Booking not found' });
 
     booking.status = status;
@@ -113,6 +145,31 @@ exports.updateBookingStatus = async (req, res) => {
     res.status(500).json({ message: 'Failed to update booking status', error });
   }
 };
+
+// exports.updateBookingStatus = async (req, res) => {
+//   const { bookingId } = req.params;
+//   const { status } = req.body;
+
+//   try {
+//     const booking = await Booking.findByPk(bookingId, {
+//       include: [
+//         { model: User, as: "user", attributes: ['username', 'email'] }, // ✅ استخدم alias الصحيح
+//     { model: Gym, as: "gym", attributes: ['gymName'] }              // ✅ نفس الشيء هنا
+//       ]
+//     });
+//     if (!booking) return res.status(404).json({ message: 'Booking not found' });
+
+//     booking.status = status;
+//     await booking.save();
+
+//     res.json({ message: 'Booking status updated successfully', booking });
+//   } catch (error) {
+//     console.error('Error updating booking status:', error);
+//     res.status(500).json({ message: 'Failed to update booking status', error });
+//   }
+// };
+
+
 
 
 
@@ -131,12 +188,3 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
-// exports.updateRole = async (req, res) => {
-//   try {
-//     const { role } = req.body;
-//     await User.update({ role }, { where: { user_id: req.params.user_id } });
-//     res.json({ message: "Role updated successfully" });
-//   } catch (err) {
-//     res.status(500).json({ error: "Failed to update role" });
-//   }
-// };

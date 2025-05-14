@@ -1,151 +1,229 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+// // choose-plan.jsx
+// import { useState } from "react";
+// import axios from "axios";
+// import { useNavigate } from "react-router-dom";
+
+// const plans = [
+//   { label: "3 أشهر", price: 90, duration: "3 months" },
+//   { label: "6 أشهر", price: 130, duration: "6 months" },
+//   { label: "سنة", price: 280, duration: "year" },
+// ];
+
+// export default function PlansPage() {
+//   const [selectedPlan, setSelectedPlan] = useState(null);
+//   const [loading, setLoading] = useState(false);
+//   const navigate = useNavigate();
+
+// const user_id = localStorage.getItem("user_id");
+// const gym_id = localStorage.getItem("gym_id");
+// const nursery_id = localStorage.getItem("nursery_id");
+// localStorage.setItem("selectedPlan", JSON.stringify(selectedPlan));
+
+
+// if (!user_id) {
+//   alert("لم يتم العثور على هوية المستخدم. الرجاء تسجيل الدخول.");
+//   return;
+// }
+
+// const handleSubscribe = async () => {
+//   if (!selectedPlan) return;
+//   setLoading(true);
+
+//   try {
+//     const payload = {
+//       user_id,
+//       plan: selectedPlan.duration,
+//       amount: selectedPlan.price,
+//     };
+
+//     if (nursery_id) {
+//       payload.nursery_id = nursery_id;
+//     } else if (gym_id) {
+//       payload.gym_id = gym_id;
+//     }
+
+//     console.log("Sending to /api/payment/create:", payload);
+
+//     await axios.post("http://localhost:5000/api/payment/create", payload);
+
+//     alert("تم الاشتراك بنجاح، سيتم مراجعة طلبك من قبل الإدارة.");
+//     navigate("/");
+//   } catch (err) {
+//     console.error(err);
+//     alert("فشل في تنفيذ الدفع.");
+//   } finally {
+//     setLoading(false);
+//   }
+// };
+
+//   return (
+//     <div className="p-8 grid md:grid-cols-3 gap-6">
+//       {plans.map((plan, index) => (
+//         <div
+//           key={index}
+//           className={`border rounded-2xl p-6 shadow-md hover:shadow-xl cursor-pointer ${
+//             selectedPlan?.price === plan.price ? "border-blue-600" : "border-gray-300"
+//           }`}
+//           onClick={() => setSelectedPlan(plan)}
+//         >
+//           <h2 className="text-xl font-bold mb-2">{plan.label}</h2>
+//           <p className="text-2xl text-blue-600">{plan.price} JD</p>
+//         </div>
+//       ))}
+//       <div className="md:col-span-3 text-center mt-6">
+//         <button
+//           onClick={handleSubscribe}
+//           disabled={loading || !selectedPlan}
+//           className="bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 disabled:opacity-50"
+//         >
+//           {loading ? "جاري المعالجة..." : "إتمام الدفع"}
+//         </button>
+//       </div>
+//     </div>
+//   );
+// }
+
+
+// if (!nursery_id) {
+//   alert("لا يوجد معرف للحضانة. الرجاء التسجيل أولاً.");
+//   // navigate("/add-nursery");
+//   return;
+// }
+
+
+// choose-plan.jsx
+import { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 
 const plans = [
-  { name: "3 Months", price: 90 },
-  { name: "6 Months", price: 130 },
-  { name: "12 Months", price: 280 },
+  { label: "3 أشهر", price: 90, duration: "3 months" },
+  { label: "6 أشهر", price: 130, duration: "6 months" },
+  { label: "سنة", price: 280, duration: "year" },
 ];
 
-const PlanPage = () => {
+export default function PlansPage() {
   const [selectedPlan, setSelectedPlan] = useState(null);
-  const [isPaying, setIsPaying] = useState(false);
-  const [gymId, setGymId] = useState(null);
-
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handlePlanSelect = (plan) => {
-    setSelectedPlan(plan);
-  };
+  const user_id = localStorage.getItem("user_id");
+  const gym_id = localStorage.getItem("gym_id");
+  const nursery_id = localStorage.getItem("nursery_id");
 
-  const prepareFormAndGym = async () => {
-    const user = JSON.parse(localStorage.getItem("user"));
-    const userData = JSON.parse(localStorage.getItem(`userData-${user?.id}`));
-
-    if (!user || !userData) {
-      alert("User data missing. Please fill the form again.");
-      return null;
+  useEffect(() => {
+    if (selectedPlan) {
+      localStorage.setItem("selectedPlan", JSON.stringify(selectedPlan));
     }
+  }, [selectedPlan]);
 
-    const form = new FormData();
-    form.append("user_id", user.id);
-    form.append("gymName", userData.gymName);
-    form.append("email", userData.email);
-    form.append("phone", userData.phone);
-    form.append("address", userData.address);
-    form.append("hasIndoorNursery", userData.hasIndoorNursery);
-    form.append("description", userData.description);
-    form.append("openingHour", userData.openingHour);
-    form.append("closingHour", userData.closingHour);
-    form.append("location", JSON.stringify(userData.coordinates));
-    form.append("plans", JSON.stringify(userData.plans));
-    form.append("category", "gym");
+  if (!user_id) {
+    alert("لم يتم العثور على هوية المستخدم. الرجاء تسجيل الدخول.");
+    return null;
+  }
 
-    form.append("trainers", JSON.stringify(
-      userData.trainers.map((trainer, i) => ({
-        name: trainer.name,
-        experience: trainer.experience,
-        photo: trainer.photo ? `trainer-${i}-${trainer.photo.name}` : null,
-      }))
-    ));
+  // if (!nursery_id && !gym_id) {
+  //   alert("الرجاء تسجيل حضانة أو جيم أولاً.");
+  //   return;
+  // }
 
-    if (userData.gymPhoto) {
-      form.append("gymPhoto", userData.gymPhoto);
-    }
+  
 
-    userData.trainers.forEach((trainer, i) => {
-      if (trainer.photo instanceof File) {
-        form.append("trainerPhotos", trainer.photo, `trainer-${i}-${trainer.photo.name}`);
-      }
-    });
-
+  const handleApprove = async (data) => {
+    if (!selectedPlan) return;
+    setLoading(true);
+  
     try {
-      const gymRes = await axios.post("http://localhost:5000/api/gyms/add-gym", form, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
 
-      return { gymId: gymRes.data.gym.id, user };
-    } catch (err) {
-      console.error("Error saving gym:", err);
-      alert("Error saving gym info.");
-      return null;
-    }
-  };
+      console.log("user_id:", user_id);
+console.log("gym_id from localStorage:", gym_id);
+console.log("nursery_id from localStorage:", nursery_id);
 
-  const handlePaymentSuccess = async (details) => {
-    const user = JSON.parse(localStorage.getItem("user"));
-
-    try {
-      await axios.post("http://localhost:5000/api/payments/record", {
-        user_id: user.id,
-        gym_id: gymId,
-        plan: selectedPlan.name,
+      const payload = {
+        user_id,
+        plan: selectedPlan.duration,
         amount: selectedPlan.price,
-        status: "completed",
-        paypalOrderId: details.id,
-      });
-
-      alert("Payment successful and gym submitted!");
-      navigate("/"); // Or redirect wherever you want
-    } catch (error) {
-      console.error("Error saving payment:", error);
-      alert("Payment succeeded but failed to save record.");
+        paypalOrderId: data.orderID,
+      };
+  
+      if (nursery_id && !gym_id) {
+        payload.nursery_id = nursery_id;
+        localStorage.removeItem("gym_id"); // 🔥 امسحي gym_id
+      } else if (gym_id && !nursery_id) {
+        payload.gym_id = gym_id;
+        localStorage.removeItem("nursery_id"); // 🔥 امسحي nursery_id
+      }
+  
+      console.log("Sending to /api/payment/create:", payload);
+  
+      await axios.post("http://localhost:5000/api/payment/create", payload);
+  
+      // 🧹 نظّفي ال localStorage بعد الاشتراك
+      localStorage.removeItem("nursery_id");
+      localStorage.removeItem("gym_id");
+  
+      alert("تم الاشتراك بنجاح، سيتم مراجعة طلبك من قبل الإدارة.");
+      navigate("/");
+    } catch (err) {
+      console.error(err);
+      alert("فشل في تنفيذ الدفع.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
-      <div className="max-w-xl w-full bg-white p-8 rounded-xl shadow-xl">
-        <h2 className="text-2xl font-bold text-center mb-6">Choose Your Subscription Plan</h2>
-        <div className="grid gap-6">
-          {plans.map((plan, idx) => (
-            <div
-              key={idx}
-              onClick={() => handlePlanSelect(plan)}
-              className={`p-4 border rounded-lg cursor-pointer transition ${
-                selectedPlan?.name === plan.name
-                  ? "border-[#C0526F] bg-[#FBEFF1]"
-                  : "border-gray-300 hover:border-[#C0526F]"
-              }`}
-            >
-              <h3 className="text-lg font-semibold">{plan.name}</h3>
-              <p className="text-gray-600">{plan.price} JD</p>
-            </div>
-          ))}
-        </div>
+    <PayPalScriptProvider options={{ "client-id": "AWlqK69G-HWWsKgNdZSxt8Zu1NoS6cxDw9FykkNDBaO0t-dc9QWoMX7H-rrgffswXyvtgy0NHmqtbZXQ" }}>
+      <div className="p-8 grid md:grid-cols-3 gap-6">
+        {plans.map((plan, index) => (
+          <div
+            key={index}
+            className={`border rounded-2xl p-6 shadow-md hover:shadow-xl cursor-pointer ${
+              selectedPlan?.price === plan.price ? "border-blue-600" : "border-gray-300"
+            }`}
+            onClick={() => setSelectedPlan(plan)}
+          >
+            <h2 className="text-xl font-bold mb-2">{plan.label}</h2>
+            <p className="text-2xl text-blue-600">{plan.price} JD</p>
+          </div>
+        ))}
 
         {selectedPlan && (
-          <div className="mt-8">
-            <PayPalScriptProvider options={{ "client-id": "AVmgi8KF0NxAeYwETCn4kXs8aI47iSEoQufeFSdappVK9bay-kRdQlBT5tN2YdGcCZlernN3f65YgNt5" }}>
-              <PayPalButtons
-                style={{ layout: "vertical" }}
-                fundingSource="paypal"
-                createOrder={async (data, actions) => {
-                  // Ensure gym is saved before creating order
-                  const result = await prepareFormAndGym();
-                  if (!result) throw new Error("Gym save failed");
-                  setGymId(result.gymId);
-                  return actions.order.create({
-                    purchase_units: [{
+          <div className="md:col-span-3 mt-6 text-center">
+            <PayPalButtons
+              style={{ layout: "vertical" }}
+              createOrder={(_, actions) =>
+                actions.order.create({
+                  purchase_units: [
+                    {
                       amount: {
-                        value: selectedPlan.price.toString()
-                      }
-                    }]
-                  });
-                }}
-                onApprove={async (data, actions) => {
-                  const details = await actions.order.capture();
-                  await handlePaymentSuccess(details);
-                }}
-              />
-            </PayPalScriptProvider>
+                        value: selectedPlan.price.toString(),
+                        currency_code: "USD",
+                      },
+                    },
+                  ],
+                })
+              }
+              onApprove={(data, actions) => {
+                console.log("PayPal order ID:", data.orderID);
+                return actions.order.capture().then(() => handleApprove(data));
+              }}
+              onError={(err) => {
+                console.error("PayPal error", err);
+                alert("فشل في إتمام عملية الدفع.");
+              }}
+            />
           </div>
         )}
       </div>
-    </div>
+    </PayPalScriptProvider>
   );
-};
+}
 
-export default PlanPage;
+
+
+
+
+
+

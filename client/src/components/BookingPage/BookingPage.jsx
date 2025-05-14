@@ -2,11 +2,12 @@ import { useState, useEffect } from "react";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import axios from "axios";
 import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { motion } from 'framer-motion';
 import { useSelector } from "react-redux";
 
 const BookingPage = () => {
-  const { id } = useParams();
+  const { id, type } = useParams();
   console.log("Receiveddddd ID: ", id);
 
   const userId = useSelector((state) => state.user.id);
@@ -21,26 +22,34 @@ const BookingPage = () => {
   });
   const [plans, setPlans] = useState([]);
   const [showPaymentSection, setShowPaymentSection] = useState(false);
+  const navigate = useNavigate();
 
-  // ✅ Fetch gym plans
-  useEffect(() => {
-    if (!id) {
-      console.error("No ID received in BookingPage");
-      return;
+  // ✅ Fetch plans
+useEffect(() => {
+  if (!id) {
+    console.error("No ID received in BookingPage");
+    return;
+  }
+
+  // تحقق من النوع قبل تنفيذ الطلب
+  if (type !== "gym") {
+    console.log("Type is not gym, skipping plan fetch");
+    return;
+  }
+
+  const fetchPlans = async () => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/gyms/${id}/plans`);
+      console.log("Received plans from API:", response.data);
+      setPlans(response.data);
+    } catch (error) {
+      console.error("Error fetching plans:", error);
     }
+  };
 
-    const fetchPlans = async () => {
-      try {
-        const response = await axios.get(`http://localhost:5000/api/gyms/${id}/plans`);
-        console.log("Received plans from API:", response.data);
-        setPlans(response.data);
-      } catch (error) {
-        console.error("Error fetching plans:", error);
-      }
-    };
+  fetchPlans();
+}, [id, type]);
 
-    fetchPlans();
-  }, [id]);
 
   // ✅ Fetch user data (username, email) and autofill
   useEffect(() => {
@@ -79,6 +88,7 @@ const BookingPage = () => {
   const handlePaymentSuccess = async (details, data) => {
     console.log("Payment Successful", details, data);
     alert("Payment successful! Your order will be reviewed to complete the booking process.");
+    navigate("/");
 
     if (!userId || !id) {
       alert("An error occurred retrieving user or gym data.");
@@ -92,8 +102,9 @@ const BookingPage = () => {
       bookingDate: formData.bookingDate,
       selectedPlan: formData.selectedPlan,
       paymentDetails: details,
-      type: "gym",
-      gym_id: id,
+      type, // "gym" أو "nursery"
+      gym_id: type === "gym" ? id : null,
+      nursery_id: type === "nursery" ? id : null,
       user_id: userId,
     };
 
@@ -264,49 +275,47 @@ const BookingPage = () => {
           </div>
   
           {/* Select a Plan */}
-          <div>
-            <label
-              htmlFor="selectedPlan"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Select a Plan
-            </label>
-            <div className="relative group">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg
-                  className="h-5 w-5 text-gray-400 group-focus-within:text-[#9C2A46] transition-colors duration-200"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
-                  <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <select
-                name="selectedPlan"
-                value={formData.selectedPlan}
-                onChange={(e) =>
-                  setFormData({ ...formData, selectedPlan: parseFloat(e.target.value) })
-                }
-                required
-                className="block w-full pl-10 py-3 border-gray-300 bg-gray-50 rounded-lg focus:ring-2 focus:ring-[#9C2A46] focus:border-[#9C2A46] text-left transition-all duration-200 appearance-none"
-              >
-                <option value="">Select a plan</option>
-                {plans.map((plan, index) => (
-                  <option key={index} value={plan.price}>
-                    {plan.name} - ${plan.price}
-                  </option>
-                ))}
-              </select>
-              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
-              </div>
-            </div>
-          </div>
-  
+          {type === "gym" && (
+  <div>
+    <label htmlFor="selectedPlan" className="block text-sm font-medium text-gray-700 mb-1">
+      Select a Plan
+    </label>
+    <div className="relative group">
+      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <svg
+          className="h-5 w-5 text-gray-400 group-focus-within:text-[#9C2A46] transition-colors duration-200"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+          <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" />
+        </svg>
+      </div>
+      <select
+        name="selectedPlan"
+        value={formData.selectedPlan}
+        onChange={(e) =>
+          setFormData({ ...formData, selectedPlan: parseFloat(e.target.value) })
+        }
+        required
+        className="block w-full pl-10 py-3 border-gray-300 bg-gray-50 rounded-lg focus:ring-2 focus:ring-[#9C2A46] focus:border-[#9C2A46] text-left transition-all duration-200 appearance-none"
+      >
+        <option value="">Select a plan</option>
+        {plans.map((plan, index) => (
+          <option key={index} value={plan.price}>
+            {plan.name} - ${plan.price}
+          </option>
+        ))}
+      </select>
+      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+        <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+        </svg>
+      </div>
+    </div>
+  </div>
+)}
           <motion.button
             type="submit"
             whileHover={{ scale: 1.02 }}
@@ -318,7 +327,8 @@ const BookingPage = () => {
         </form>
   
         {/* Payment Section */}
-        {showPaymentSection && formData.selectedPlan && (
+        {showPaymentSection && (type === "nursery" || formData.selectedPlan) && (
+
           <div className="mt-8">
             <div className="relative mb-6">
               <div className="absolute inset-0 flex items-center">
@@ -332,23 +342,32 @@ const BookingPage = () => {
             </div>
             
             <div className="flex justify-center">
-              <PayPalScriptProvider options={{ "client-id": "AVmgi8KF0NxAeYwETCn4kXs8aI47iSEoQufeFSdappVK9bay-kRdQlBT5tN2YdGcCZlernN3f65YgNt5" }}>
-                <PayPalButtons
-                  createOrder={(data, actions) => {
-                    return actions.order.create({
-                      purchase_units: [
-                        {
-                          amount: { value: formData.selectedPlan.toString() }
-                        },
-                      ],
-                    });
-                  }}
-                  onApprove={(data, actions) => {
-                    return actions.order.capture().then((details) => {
-                      handlePaymentSuccess(details, data);
-                    });
-                  }}
-                />
+              <PayPalScriptProvider options={{ "client-id": "AWlqK69G-HWWsKgNdZSxt8Zu1NoS6cxDw9FykkNDBaO0t-dc9QWoMX7H-rrgffswXyvtgy0NHmqtbZXQ" }}>
+             <PayPalButtons
+  createOrder={(data, actions) => {
+    // تحديد قيمة المبلغ حسب النوع
+    let amountValue = "0.00";
+    if (type === "gym" && formData.selectedPlan) {
+      amountValue = parseFloat(formData.selectedPlan).toFixed(2); // تأكد إنها قيمة رقمية بصيغة صحيحة
+    } else if (type === "nursery") {
+      amountValue = "10.00"; // قيمة ثابتة لحجز الحضانة (مثال، غيّرها حسب السعر الحقيقي)
+    }
+
+    return actions.order.create({
+      purchase_units: [
+        {
+          amount: { value: amountValue }
+        },
+      ],
+    });
+  }}
+  onApprove={(data, actions) => {
+    return actions.order.capture().then((details) => {
+      handlePaymentSuccess(details, data);
+    });
+  }}
+/>
+
               </PayPalScriptProvider>
             </div>
           </div>

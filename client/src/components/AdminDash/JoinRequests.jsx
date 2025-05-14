@@ -4,35 +4,65 @@ import { Check, Loader2 } from "lucide-react";
 
 const JoinRequests = () => {
   const [gyms, setGyms] = useState([]);
+  const [nurseries, setNurseries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchPendingGyms = async () => {
-    setLoading(true);
+const fetchPendingGyms = async () => {
+  try {
+    const res = await axios.get("http://localhost:5000/api/gyms/pending");
+    const gymData = res.data.gyms.map(gym => ({ ...gym, type: "gym" }));
+    setGyms(gymData);
+  } catch (err) {
+    console.error("Error fetching pending gyms:", err);
+    setError("Failed to fetch pending gyms: " + err.message);
+  }
+};
+
+const fetchPendingNurseries = async () => {
+  try {
+    const res = await axios.get("http://localhost:5000/api/nurseries/pending");
+    const nurseryData = res.data.nurseries.map(nursery => ({ ...nursery, type: "nursery" }));
+    setNurseries(nurseryData);
+  } catch (err) {
+    console.error("Error fetching pending nurseries:", err);
+    setError("Failed to fetch pending nurseries: " + err.message);
+  }
+};
+
+
+const approveGym = async (id) => {
+  try {
+    await axios.patch(`http://localhost:5000/api/gyms/publish-gym/${id}`);
+    fetchAll(); // لإعادة تحميل البيانات بعد الموافقة
+  } catch (err) {
+    alert("Failed to approve gym.");
+    console.log(err);
+  }
+};
+
+
+  const approveNursery = async (id) => {
     try {
-      const res = await axios.get("http://localhost:5000/api/gyms/pending");
-      console.log(res.data); // all data of objects
-      setGyms(res.data.gyms); 
+      await axios.patch(`http://localhost:5000/api/nurseries/publish-nursery/${id}`);
+      fetchAll();
     } catch (err) {
-      setError("Failed to fetch pending gyms.");
-    } finally {
-      setLoading(false);
+      alert("Failed to approve nursery.");
+      console.log(err);
     }
   };
 
-  const approveGym = async (gymId) => {
-    try {
-      await axios.patch(`http://localhost:5000/api/gyms/publish-gym/${gymId}`);
-      fetchPendingGyms();
-    } catch (err) {
-      console.error("Approve error:", err);
-      alert("Failed to approve gym.");
-    }
+  const fetchAll = async () => {
+    setLoading(true);
+    await Promise.all([fetchPendingGyms(), fetchPendingNurseries()]);
+    setLoading(false);
   };
 
   useEffect(() => {
-    fetchPendingGyms();
+    fetchAll();
   }, []);
+
+  const allRequests = [...gyms, ...nurseries];
 
   return (
     <div className="max-w-7xl mx-auto p-6">
@@ -42,11 +72,8 @@ const JoinRequests = () => {
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-[#FBEFF1]">
             <tr>
-              {["Gym Name", "Owner", "Email", "Category","Payment status" ,"Action"].map((h, i) => (
-                <th
-                  key={i}
-                  className="px-6 py-3 text-left text-xs font-medium text-[#9C2A46] uppercase tracking-wider"
-                >
+              {["Name", "Owner", "Email", "Category", "Payment status", "Action"].map((h, i) => (
+                <th key={i} className="px-6 py-3 text-left text-xs font-medium text-[#9C2A46] uppercase tracking-wider">
                   {h}
                 </th>
               ))}
@@ -55,42 +82,39 @@ const JoinRequests = () => {
           <tbody className="divide-y divide-gray-100">
             {loading ? (
               <tr>
-                <td colSpan="5" className="text-center py-6">
+                <td colSpan="6" className="text-center py-6">
                   <Loader2 className="mx-auto h-6 w-6 animate-spin text-[#C0526F]" />
                 </td>
               </tr>
-            ) : gyms.length === 0 ? (
+            ) : allRequests.length === 0 ? (
               <tr>
-                <td colSpan="5" className="text-center py-6 text-gray-500">
-                  No pending gyms found.
+                <td colSpan="6" className="text-center py-6 text-gray-500">
+                  No pending requests found.
                 </td>
               </tr>
             ) : (
-              gyms.map((gym) => (
-                <tr key={gym.id} className="hover:bg-[#FBEFF1] transition-colors">
+              allRequests.map((item) => (
+                <tr key={item.id} className="hover:bg-[#FBEFF1] transition-colors">
                   <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                    {gym.gymName}
+                    {item.type === "gym" ? item.gymName : item.nurseryName}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">
-                  {gym.user?.username || "-"}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">
-                  {gym.user?.email || "-"}
-                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-500">{item.user?.username || "-"}</td>
+                  <td className="px-6 py-4 text-sm text-gray-500">{item.user?.email || "-"}</td>
+                  <td className="px-6 py-4 text-sm text-gray-500 capitalize">{item.category || item.type}</td>
                   <td className="px-6 py-4 text-sm text-gray-500 capitalize">
-                    {gym.category || "-"}
+                    {item.payment?.[0]?.status === "completed" ? (
+                      <span className="text-green-600">Paid</span>
+                    ) : (
+                      <span className="text-red-600">Unpaid</span>
+                    )}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-500 capitalize">
-      {/* كود الدفع */}
-      {gym.payment?.[0]?.status === "completed" ? (
-        <span style={{ color: "green" }}> paid </span>
-      ) : (
-        <span style={{ color: "red" }}> Unpaid </span>
-      )}
-    </td>
                   <td className="px-6 py-4 text-sm">
                     <button
-                      onClick={() => approveGym(gym.id)}
+                      onClick={() =>
+                        item.type === "gym"
+                          ? approveGym(item.id)
+                          : approveNursery(item.id)
+                      }
                       className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#C0526F] text-white hover:bg-[#d1637f] transition-colors"
                     >
                       <Check className="w-4 h-4" />

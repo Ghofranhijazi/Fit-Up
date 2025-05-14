@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { ChevronDown, UserCircle2 } from "lucide-react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -7,6 +7,7 @@ import Logout from "../Auth/Logout";
 export default function NavBar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+    const [category, setCategory] = useState(''); // هنا نضيف حالة `category` لتخزين الفئة المختارة
   const user = useSelector((state) => state.user);
   const location = useLocation();
 
@@ -27,6 +28,11 @@ export default function NavBar() {
   // Prevent dropdown close when clicking inside dropdown
   const handleDropdownClick = (e) => {
     e.stopPropagation();
+  };
+ // عند اختيار فئة من القائمة
+  const handleCategorySelect = (selectedCategory) => {
+    setCategory(selectedCategory); // تخزين الفئة المختارة
+    setDropdownOpen(false); // إغلاق القائمة المنسدلة بعد اختيار الفئة
   };
 
   return (
@@ -69,14 +75,14 @@ export default function NavBar() {
             </Link>
 
             {/* Dropdown */}
-            <div className="relative" onClick={handleDropdownClick}>
+             <div className="relative" onClick={handleDropdownClick}>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   setDropdownOpen(!dropdownOpen);
                   setProfileDropdownOpen(false);
                 }}
-                className="flex items-center gap-1 hover:text-[#C0526F] transition-all duration-300 relative after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-[#C0526F] after:transition-all after:duration-300 hover:after:w-full group"
+                className="flex items-center gap-1 hover:text-[#C0526F] transition-all duration-300"
               >
                 LOOKING FOR ?
                 <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${dropdownOpen ? 'rotate-180' : ''}`} />
@@ -84,19 +90,22 @@ export default function NavBar() {
               {dropdownOpen && (
                 <div className="absolute right-0 mt-4 w-64 bg-gradient-to-b from-[#1a2a36] to-[#15222b] text-white shadow-xl rounded-lg overflow-hidden border border-gray-700 backdrop-blur-md transition-all duration-300">
                   <Link 
-                    to="/GymListingPage" 
+                    to={`/GymListingPage?category=Gym only`} // رابط يحتوي على الفئة Gym only
+                    onClick={() => handleCategorySelect('Gym only')}
                     className="block px-6 py-3 hover:bg-[#C0526F] hover:bg-opacity-20 transition-all duration-300 border-b border-gray-700"
                   >
                     Gym only
                   </Link>
                   <Link 
-                    to="/GymIndoorNurseryPage" 
+                    to={`/GymListingPage?category=Gym with indoor nursery`} // رابط يحتوي على الفئة Gym with indoor nursery
+                    onClick={() => handleCategorySelect('Gym with indoor nursery')}
                     className="block px-6 py-3 hover:bg-[#C0526F] hover:bg-opacity-20 transition-all duration-300 border-b border-gray-700"
                   >
                     Gym with indoor nursery
                   </Link>
                   <Link 
-                    to="/GymNearbyNurseryPage" 
+                    to="/NurseryListingPage"
+                    onClick={() => handleCategorySelect('Gym with nearby nursery')}
                     className="block px-6 py-3 hover:bg-[#C0526F] hover:bg-opacity-20 transition-all duration-300"
                   >
                     Gym with nearby nursery
@@ -110,7 +119,6 @@ export default function NavBar() {
               <Link
                 to="/login"
                 className="px-5 py-2 bg-[#C0526F] hover:bg-[#d1637f] rounded-lg transition-all duration-300 shadow-md hover:shadow-lg font-medium"
-                // from-[#C0526F] to-[#d1637f] hover:from-[#d1637f] hover:to-[#C0526F]
               >
                 LOG IN
               </Link>
@@ -133,10 +141,17 @@ export default function NavBar() {
                     <div className="absolute right-0 mt-4 w-56 bg-gradient-to-b from-[#1a2a36] to-[#15222b] text-white shadow-xl rounded-lg overflow-hidden border border-gray-700 backdrop-blur-md">
                       {user.role === "gymOwner" ? (
                         <Link
-                          to="/OwnerProfile"
+                          to="/GymProfile"
                           className="block px-6 py-3 hover:bg-[#C0526F] hover:bg-opacity-20 transition-all duration-300 border-b border-gray-700 flex items-center"
                         >
                           <UserCircle2 className="w-5 h-5 mr-2" /> Owner Profile
+                        </Link>
+                      ) : user.role === "nurseryOwner" ? (
+                        <Link
+                          to="/NurseryProfile"
+                          className="block px-6 py-3 hover:bg-[#C0526F] hover:bg-opacity-20 transition-all duration-300 border-b border-gray-700 flex items-center"
+                        >
+                          <UserCircle2 className="w-5 h-5 mr-2" /> Nursery Profile
                         </Link>
                       ) : (
                         <Link

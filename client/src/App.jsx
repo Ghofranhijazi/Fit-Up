@@ -6,7 +6,8 @@ import {
   Logout,
   Payment,
   UserProfile,
-  OwnerProfile,
+  GymProfile,
+  NurseryProfile,
   // Profile,
   About,
   Contact,
@@ -84,11 +85,21 @@ function App() {
       ),
     },
     {
-      path: "/OwnerProfile",
+      path: "/GymProfile",
       element: (
         <>
           <Navbar />
-          <OwnerProfile />
+          <GymProfile />
+          <Footer />
+        </>
+      ),
+    },
+    {
+      path: "/NurseryProfile",
+      element: (
+        <>
+          <Navbar />
+          <NurseryProfile />
           <Footer />
         </>
       ),
@@ -174,7 +185,7 @@ function App() {
       ),
     },
     {
-      path: "/NurseryDetailsPage",
+      path: "/NurseryDetailsPage/:id",
       element: (
         <>
           <Navbar />
@@ -224,7 +235,7 @@ function App() {
       ),
     },
     {
-      path: "/Booking/:id",
+      path: "/Booking/:type/:id",
       element: (
         <>
           <Navbar />
@@ -243,7 +254,7 @@ function App() {
     },
     {
       path: "/register",
-      element: <Register />,
+      element: <Register />
     },
     {
       path: "/admin",

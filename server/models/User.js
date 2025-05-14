@@ -1,4 +1,4 @@
-// // models/User.js
+// models/User.js
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database').sequelize;
 
@@ -28,10 +28,7 @@ const User = sequelize.define('User', {
     defaultValue: 'user',
     allowNull: false
   },
-  // verified: {
-  //   type: DataTypes.BOOLEAN, // (isApproved) فقط يظهر البروفايل إذا وافق الأدمن
-  //   defaultValue: false
-  // },
+  
   phone: {
     type: DataTypes.STRING,
     allowNull: true
@@ -51,6 +48,14 @@ const User = sequelize.define('User', {
 User.associate = (models) => {
   User.hasMany(models.Comment, { foreignKey: "userId" });
 };
+User.associate = (models) => {
+  User.hasMany(models.Booking, { foreignKey: "user_id", as: "bookings" });
+};
 
 module.exports = User;
 
+
+// verified: {
+  //   type: DataTypes.BOOLEAN, // (isApproved) فقط يظهر البروفايل إذا وافق الأدمن
+  //   defaultValue: false
+  // },

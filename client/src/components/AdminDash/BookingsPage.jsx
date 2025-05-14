@@ -81,13 +81,13 @@ const BookingsPage = () => {
                   className="hover:bg-[#FBEFF1] transition-colors"
                 >
                   <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                    {booking.User?.username || "-"}
+                    {booking.user?.username || "-"}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-500">
-                    {booking.User?.email || "-"}
+                    {booking.user?.email || "-"}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-500">
-                    {booking.Gym?.gymName || "-"}
+                    {booking.gym?.gymName || booking.nursery?.nurseryName}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-500">
                     {booking.selectedPlan || "-"}

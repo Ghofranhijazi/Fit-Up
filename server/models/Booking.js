@@ -1,73 +1,73 @@
 // models/Booking.js
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database').sequelize;
-const Gym = require('./Gym'); // نموذج الجيم
-const User = require('./User');
 
-// تعريف النموذج
-const Booking = sequelize.define('Booking', {
+const Booking = sequelize.define("Booking", {
   id: {
     type: DataTypes.UUID,
     defaultValue: DataTypes.UUIDV4,
-    allowNull: false,
     primaryKey: true,
-  },
-  type: {
-    type: DataTypes.ENUM('gym', 'nursery'),
-    allowNull: true,
   },
   username: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: false,
   },
   email: {
     type: DataTypes.STRING,
-    allowNull: true,
+    allowNull: false,
   },
   phone: {
     type: DataTypes.STRING,
-    allowNull: true,
+    allowNull: false,
   },
-  status: {
-    type: DataTypes.ENUM('pending', 'accepted', 'rejected'),
-    defaultValue: 'pending',
+  bookingDate: {
+    type: DataTypes.DATE,
     allowNull: false,
   },
   selectedPlan: {
     type: DataTypes.STRING,
     allowNull: true,
   },
-  bookingDate: {
-    type: DataTypes.DATE,
+  paymentDetails: {
+    type: DataTypes.TEXT,
     allowNull: true,
   },
   paymentStatus: {
-    type: DataTypes.ENUM('completed', 'pending', 'failed'),
+    type: DataTypes.ENUM("pending", "completed", "failed"),
+    defaultValue: "pending",
+  },
+  status: {
+    type: DataTypes.ENUM("pending", "accepted", "rejected"),
+    defaultValue: "pending",
+  },
+  user_id: {
+    type: DataTypes.UUID,
     allowNull: false,
-    defaultValue: 'pending',
   },
-  paymentDetails: {
-    type: DataTypes.JSONB,
-    allowNull: true,
-  },
-  gym_id: {  
+  gym_id: {
     type: DataTypes.UUID,
     allowNull: true,
   },
-  user_id: {  
+  nursery_id: {
     type: DataTypes.UUID,
     allowNull: true,
-  }
+  },
+  type: {
+    type: DataTypes.ENUM("gym", "nursery"),
+    allowNull: false,
+  },
 }, {
   timestamps: true,
 });
 
-// تحديد العلاقة بين الجداول
-Booking.belongsTo(Gym, { foreignKey: 'gym_id' });  // العلاقة بين Booking و Gym
-Gym.hasMany(Booking, { foreignKey: 'gym_id' });   // العلاقة العكسية بين Gym و Booking
-Booking.belongsTo(User, { foreignKey: 'user_id' }); // كل حجز ينتمي إلى مستخدم واحد
+module.exports = Booking;
 
-module.exports =  Booking ;
+Booking.associate = (models) => {
+  Booking.belongsTo(models.User, { foreignKey: "user_id", as: "user" });
+  Booking.belongsTo(models.Gym, { foreignKey: "gym_id", as: "gym" });
+  Booking.belongsTo(models.Nursery, { foreignKey: "nursery_id", as: "nursery" });
+};
+
 
 
 
