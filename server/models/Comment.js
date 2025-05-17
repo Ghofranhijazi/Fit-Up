@@ -31,6 +31,12 @@ const Comment = sequelize.define("Comment", {
     type: DataTypes.UUID,
     allowNull: true,  // We allow null here for gyms
   },
+
+   // ✅ أضف هذا السطر
+  isDeleted: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
 }, {
   timestamps: true,
 });

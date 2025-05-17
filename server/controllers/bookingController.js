@@ -8,13 +8,26 @@ const Nursery = require('../models/Nursery');
    const createBooking = async (req, res) => {
     const { username, email, phone, bookingDate, selectedPlan, paymentDetails, gym_id, nursery_id, user_id, type } = req.body;
     
-    try {
+  try {
+    let finalPrice = null;
+
+    if (type === "gym") {
+      finalPrice = selectedPlan;
+    } else if (type === "nursery") {
+      const nursery = await Nursery.findByPk(nursery_id);
+      if (!nursery) {
+        return res.status(404).json({ message: "Nursery not found" });
+      }
+      finalPrice = nursery.monthlyFee || "0";
+    }
+
       const newBooking = await Booking.create({
         username,
         email,
         phone,
         bookingDate,
-        selectedPlan: type === "gym" ? selectedPlan : null,
+        selectedPlan: finalPrice,
+        // selectedPlan: type === "gym" ? selectedPlan : null,
         paymentDetails: JSON.stringify(paymentDetails), // تخزين تفاصيل الدفع بصيغة JSON
         paymentStatus: 'completed', // تم الدفع
         status: 'pending', // وضع الحجز

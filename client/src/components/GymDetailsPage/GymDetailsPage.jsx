@@ -4,8 +4,8 @@ import axios from "axios";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-// أعلى الملف
-import { Star } from "lucide-react";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { useSelector } from "react-redux";
 
 // Custom icons with better styling
@@ -67,14 +67,13 @@ useEffect(() => {
 const handleSubmit = async (e) => {
   e.preventDefault();
   if (!user || !user.id) {
-    alert("You must be logged in to comment.");
+    toast.error("You must be logged in to comment.");
     return;
   }
 
   try {
 
     console.log("user object:", user);
-    console.log("username:", user.username);
 
     await axios.post(
       `http://localhost:5000/api/comment/gyms/${id}/comments`,
@@ -86,12 +85,18 @@ const handleSubmit = async (e) => {
     setNewComment("");
     setRating(0);
     fetchComments();
-  } catch (err) {
+} catch (err) {
     console.error("Error submitting comment", err);
-    alert("Failed to submit comment.");
+
+    if (err.response?.status === 403) {
+      toast.error("You can only write a review after you have booked and fully paid for this gym.");
+    } else if (err.response?.status === 401) {
+      toast.error("Please log in first.");
+    } else {
+      toast.error("An error occurred while submitting the comment.");
+    }
   }
 };
-
 
 
   useEffect(() => {
@@ -123,20 +128,15 @@ const handleSubmit = async (e) => {
     </div>
   );
 
-  // const nearestNursery = {
-  //   lat: gym.location.lat + 0.002,
-  //   lng: gym.location.lng + 0.002,
-  // };
-
   
-  const handleShowNursery = async () => {
-    if (!gym || !gym.location) {
-      alert("Gym location is missing.");
-      return;
-    }
+ const handleShowNursery = async () => {
+  if (!gym || !gym.location) {
+    toast.error("Gym location is missing.");
+    return;
+  }
   
     try {
-      const response = await axios.get(`/api/gyms/${id}/nearest-nursery`);
+      const response = await axios.get(`http://localhost:5000/api/gyms/${id}/nearest-nursery`);
       const nursery = response.data?.nursery;
   
       if (nursery && nursery.location) {
@@ -163,14 +163,14 @@ const handleSubmit = async (e) => {
         // لا توجد حضانة قريبة، نولد موقع عشوائي قريب
         const fakeLocation = randomNearbyLocation(gym.location.lat, gym.location.lng);
         setNearestNursery(fakeLocation);
-        alert(`Nearest nursery to ${gym.gymName} is now shown on the map`);
+        toast.success(`Nearest nursery to ${gym.gymName} is now shown on the map`);
       }
   
       setShowNursery(true);
   
     } catch (err) {
       console.error("Error fetching nearest nursery", err);
-      alert("Failed to retrieve nursery. Showing a simulated one.");
+      toast.error("Failed to retrieve nursery.");
   
       // fallback في حال السيرفر فشل
       const fallbackLocation = randomNearbyLocation(gym.location.lat, gym.location.lng);
@@ -189,41 +189,40 @@ const handleSubmit = async (e) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f8f1f3] to-[#f9f9f9]">
-      {/* Gym Hero Section with Image Background */}
-{/* Gym Hero Section with Image Background - Blur Control */}
-<div className="relative h-55 overflow-hidden">
-  {/* Background Image with blur control - adjust --blur-amount in style tag */}
+      {/* Gym Hero Section */}
+   <div className="relative h-70 sm:h-55 md:h-70 overflow-hidden">
+  {/* Background Image with blur */}
   <div 
     className="absolute inset-0 w-full h-full bg-cover bg-center"
     style={{
       backgroundImage: `url(http://localhost:5000/uploads/${gym.gymPhoto.replace("\\", "/")})`,
-      filter: 'blur(var(--blur-amount))',
-      '--blur-amount': '8px' /* Change this value to adjust blur intensity */
+      filter: 'blur(8px)'
     }}
   ></div>
   
-  {/* Color overlay */}
+  {/* Overlay */}
   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-black/30"></div>
   
   {/* Content */}
-  <div className="container mx-auto px-6 h-full flex items-end pb-12 relative z-10 mt-5">
-    <div className="text-white">
-      <h1 className="text-5xl font-bold mb-2 drop-shadow-lg">{gym.gymName}</h1>
-      <div className="flex items-center text-white/90 bg-[#9C2A46]/80 px-4 py-2 rounded-full backdrop-blur-sm w-fit">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-          <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-        </svg>
-        <span className="font-medium">{gym.address}</span>
-      </div>
+  <div className="relative z-10 h-full flex flex-col justify-end px-4 sm:px-6 lg:px-8 pb-10">
+    <h1 className="text-white text-3xl sm:text-4xl md:text-5xl font-bold mb-3 drop-shadow-lg">
+      {gym.gymName}
+    </h1>
+    <div className="flex items-center text-white/90 bg-[#9C2A46]/80 px-4 py-2 rounded-full backdrop-blur-sm w-fit">
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+        <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+      </svg>
+      <span className="font-medium">{gym.address}</span>
     </div>
   </div>
 </div>
-<div className='w-full h-1 bg-gradient-to-r from-[#9C2A46] to-[#C0526F]'></div>
 
+{/* Divider */}
+<div className="w-full h-1 bg-gradient-to-r from-[#9C2A46] to-[#C0526F]"></div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-6 py-12 -mt-10 relative z-20">
-  <div className="flex flex-col lg:flex-row gap-10 mt-10">
+      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-20">
+  <div className="flex flex-col lg:flex-row gap-10 mt-5">
     {/* Left Column - Image & Actions */}
     <div className="lg:w-1/2 relative">
       {/* Nursery Badge - Positioned over image */}
@@ -276,20 +275,48 @@ const handleSubmit = async (e) => {
       {/* Gym Description */}
       <div className="mt-10 bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
         <h3 className="text-2xl font-bold text-gray-800 mb-6 pb-2 border-b border-gray-200">About Our Gym</h3>
-        <p className="text-gray-600 leading-relaxed text-lg">{gym.description}</p>
-        
-        {/* Secondary Nursery Indicator */}
-        {gym.hasIndoorNursery && (
-          <div className="mt-6 pt-4 border-t border-gray-100">
-            <div className="inline-flex items-center bg-[#f8f0f2] px-4 py-2 rounded-full text-[#9C2A46]">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-              </svg>
-              <span className="font-medium">Childcare services available on-site</span>
-            </div>
-            <p className="mt-2 text-gray-600 text-sm">Our indoor nursery is staffed with certified professionals and available during all operating hours.</p>
-          </div>
+       <p className="text-gray-600 leading-relaxed text-lg break-all">{gym.description}</p>
+
+       {/* Services Section */}
+    <div className="mt-8">
+      <h4 className="text-xl font-semibold text-gray-800 mb-4">Services Offered</h4>
+      <div className="flex flex-wrap gap-2">
+        {gym.services?.map((service, index) => (
+          <span key={index} className="bg-[#f8e8eb] text-[#9C2A46] px-4 py-2 rounded-full text-sm font-medium">
+            {service}
+          </span>
+        ))}
+        {gym.additionalServices && (
+          <span className="bg-[#f8e8eb] text-[#9C2A46] px-4 py-2 rounded-full text-sm font-medium">
+            {gym.additionalServices}
+          </span>
         )}
+      </div>
+    </div>
+
+        
+     {gym.hasIndoorNursery && (
+  <div className="mt-6 pt-4 border-t border-gray-100">
+    <div className="flex flex-col sm:flex-row sm:items-center bg-[#f8f0f2] px-4 py-3 rounded-xl text-[#9C2A46] gap-2">
+      <div className="flex items-center">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5 mr-2 shrink-0"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+        <span className="font-medium text-sm sm:text-base">Childcare services available on-site</span>
+      </div>
+    </div>
+
+    <p className="mt-2 text-gray-600 text-sm sm:text-base leading-relaxed">
+      Our indoor nursery is staffed with certified professionals and available during all operating hours.
+    </p>
+  </div>
+)}
+
       </div>
     </div>
           {/* Right Column - Gym Info */}
@@ -338,10 +365,11 @@ const handleSubmit = async (e) => {
                     <h4 className="font-semibold text-gray-500 text-sm uppercase tracking-wider">Membership Plans</h4>
                     <div className="mt-3 space-y-3">
                       {gym.plans?.map((p) => (
-                        <div key={p.name} className="flex justify-between items-center bg-[#f8f1f3] p-4 rounded-lg border-l-4 border-[#C0526F] hover:bg-[#f3e5e9] transition-colors duration-200">
-                          <span className="font-medium text-gray-700 text-lg">{p.name}</span>
-                          <span className="font-bold text-[#9C2A46] text-xl">{p.price} JOD</span>
-                        </div>
+                        <div key={p.name} className="flex flex-wrap justify-between items-center bg-[#f8f1f3] p-4 rounded-lg border-l-4 border-[#C0526F] hover:bg-[#f3e5e9] transition-colors duration-200">
+                            <span className="font-medium text-gray-700 text-lg break-words">{p.name}</span>
+                            <span className="font-bold text-[#9C2A46] text-xl whitespace-nowrap">{p.price} JOD</span>
+                       </div>
+
                       ))}
                     </div>
                   </div>
@@ -373,11 +401,6 @@ const handleSubmit = async (e) => {
               <Marker position={gym.location} icon={gymIcon}>
                 <Popup className="custom-popup font-bold text-[#9C2A46]">{gym.gymName}</Popup>
               </Marker>
-              {/* {showNursery && (
-                <Marker position={nearestNursery} icon={nurseryIcon}>
-                  <Popup className="custom-popup font-bold text-[#9C2A46]">Nearest Nursery</Popup>
-                </Marker>
-              )} */}
               {showNursery && (
            <Marker position={nearestNursery} icon={nurseryIcon}>
            <Popup className="custom-popup font-bold text-[#9C2A46]">Nearest Nursery</Popup>
@@ -511,9 +534,9 @@ const handleSubmit = async (e) => {
               </div>
               
               {/* Comment Text */}
-              <p className="text-gray-700 leading-relaxed pl-1 border-l-2 border-[#e8cad1]">
-                {comment.text}
-              </p>
+             <p className="text-gray-700 leading-relaxed pl-1 border-l-2 border-[#e8cad1] break-all">
+               {comment.text}
+             </p>
               
               {/* Like/Reply Actions */}
               <div className="flex items-center mt-4 pt-3 border-t border-gray-100">
@@ -574,21 +597,3 @@ const handleSubmit = async (e) => {
 
 
 
-
-// const handleShowNursery = () => {
-  //   setShowNursery(true);
-  //   // Modern toast notification
-  //   const toast = document.createElement('div');
-  //   toast.className = 'fixed bottom-6 right-6 bg-[#9C2A46] text-white px-6 py-3 rounded-lg shadow-xl flex items-center animate-fade-in z-50';
-  //   toast.innerHTML = `
-  //     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-  //       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-  //     </svg>
-  //     Nearest nursery to ${gym.gymName} is now shown on the map
-  //   `;
-  //   document.body.appendChild(toast);
-  //   setTimeout(() => {
-  //     toast.classList.add('animate-fade-out');
-  //     setTimeout(() => toast.remove(), 300);
-  //   }, 3500);
-  // };

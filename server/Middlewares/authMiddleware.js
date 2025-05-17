@@ -16,16 +16,12 @@ function verifyToken(req, res, next) {
       return res.status(403).json({ message: "Invalid token" });
     }
 
-    console.log("Decoded Token:", decoded);
+    console.log("Decoded Tokennnnnnnnnnnnnnnnnnnnnnn:", decoded);
 
-    req.user = decoded;
+    req.user = decoded; // نخزن بيانات المستخدم في req.user
     next();
   });
 }
 
 module.exports = verifyToken;
-
-// if (decoded.role !== "admin") { 
-    //     return res.status(403).json({ message: "Access denied. Admins only." });
-    // }
 

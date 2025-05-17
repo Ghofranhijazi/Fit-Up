@@ -19,7 +19,8 @@ const addNursery = async (req, res) => {
       capacity,
       minAge,
       maxAge,
-      category
+      category,
+      monthlyFee
     } = req.body;
 
 
@@ -33,10 +34,10 @@ const documentFiles = req.files['documents'] || [];
     console.log("Files received:", req.files);
     console.log("Body received:", req.body);
     
-    const parsedDocuments = documentFiles.map(file => ({
-      type: file.originalname.split('_')[0], // Extract document type from filename
-      file: file.filename
-    }));
+    // const parsedDocuments = documentFiles.map(file => ({
+    //   type: file.originalname.split('_')[0], // Extract document type from filename
+    //   file: file.filename
+    // }));
 
     if (!user_id || !nurseryName || !email || !phone || !address) {
       return res.status(400).json({ message: "Missing required fields" });
@@ -56,12 +57,11 @@ const documentFiles = req.files['documents'] || [];
       openingHour,
       closingHour,
       category,
-      // capacity: capacity === '' ? null : parseInt(capacity),
       capacity: isNaN(parseInt(capacity)) ? null : parseInt(capacity),
       minAge: minAge === '' ? null : parseInt(minAge),
       maxAge: maxAge === '' ? null : parseInt(maxAge),
       location: JSON.parse(location),
-      documents: parsedDocuments
+      monthlyFee,
     });
 
     
@@ -191,7 +191,7 @@ const getNearestGym = async (req, res) => {
 const getPendingNurseries = async (req, res) => {
   try {
     const nurseries = await Nursery.findAll({
-      // where: { isPublished: false },
+      where: { isPublished: false },
       include: [
         {
           model: Payment,

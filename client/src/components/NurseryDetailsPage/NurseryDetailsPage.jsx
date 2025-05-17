@@ -6,6 +6,8 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { Star } from "lucide-react";
 import { useSelector } from "react-redux";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Custom icons for the map markers
 const nurseryIcon = new L.Icon({
@@ -64,12 +66,12 @@ export default function NurseryDetailsPage() {
   // عند الضغط على زر "عرض أقرب جيم"
   const handleShowGym = async () => {
     if (!nursery || !nursery.location) {
-      alert("Nursery location is missing.");
+       toast.error("Nursery location is missing.");
       return;
     }
 
     try {
-      const response = await axios.get(`/api/nurseries/${id}/nearest-gym`);
+      const response = await axios.get(`http://localhost:5000/api/nurseries/${id}/nearest-gym`);
       const gym = response.data?.gym;
 
       if (gym && gym.location) {
@@ -96,19 +98,18 @@ export default function NurseryDetailsPage() {
         const fakeLocation = randomNearbyLocation(nursery.location.lat, nursery.location.lng);
         setNearestGym(fakeLocation);
 
-        alert(`Nearest gym to ${nursery.nurseryName} is now shown on the map`);
+        toast.success(`Nearest gym to ${nursery.nurseryName} is now shown on the map`);
       }
 
       setShowGym(true);
 
     } catch (err) {
       console.error("Error fetching nearest gym", err);
-      alert("Failed to retrieve gym. Showing a simulated one.");
-
       // fallback في حال فشل السيرفر
       const fallbackLocation = randomNearbyLocation(nursery.location.lat, nursery.location.lng);
       setNearestGym(fallbackLocation);
       setShowGym(true);
+      toast.success(`Nearest gym to ${nursery.nurseryName} is now shown on the map`);
     }
   };
 
@@ -127,7 +128,7 @@ export default function NurseryDetailsPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!user || !user.id) {
-      alert("You must be logged in to comment.");
+     toast.error("You must be logged in to comment.");
       return;
     }
 
@@ -136,9 +137,7 @@ export default function NurseryDetailsPage() {
         `http://localhost:5000/api/comment/nurseries/${id}/comments`,
         { text: newComment, rating },// إرسال النص والتقييم فقط
         { withCredentials: true,
-          // headers: {
-          //   Authorization: `Bearer ${token}`  // تأكد من إضافة الـ Token هنا
-          // } 
+         
         }
       );
       setNewComment("");
@@ -146,7 +145,15 @@ export default function NurseryDetailsPage() {
       fetchComments();  // جلب التعليقات بعد إضافة تعليق جديد
     } catch (err) {
       console.error("Error submitting comment", err);
-      alert("Failed to submit comment.");
+       toast.error("Failed to submit comment.");
+
+        if (err.response?.status === 403) {
+             toast.error("You can only write a review after you have booked and fully paid for this Nursery.");
+           } else if (err.response?.status === 401) {
+             toast.error("Please log in first.");
+           } else {
+             toast.error("An error occurred while submitting the comment.");
+           }
     }
   };
 
@@ -174,43 +181,45 @@ export default function NurseryDetailsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#f0f7ff] to-[#e6f0fa]">
-      {/* Nursery Hero Section */}
-      <div className="relative h-55 overflow-hidden">
-        <div 
-          className="absolute inset-0 w-full h-full bg-cover bg-center"
-          style={{
-            backgroundImage: `url(http://localhost:5000/uploads/${nursery.nurseryPhoto.replace("\\", "/")})`,
-            filter: 'blur(var(--blur-amount))',
-      '--blur-amount': '8px' /* Change this value to adjust blur intensity */
-          }}
-        ></div>
-       {/* Color overlay */}
-  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-black/30"></div>
-        {/* Content */}
-        <div className="container mx-auto px-6 h-full flex items-end pb-12 relative z-10 mt-5">
-          <div className="text-white">
-            <h1 className="text-5xl font-bold mb-2 drop-shadow-lg">{nursery.nurseryName}</h1>
-            <div className="flex items-center text-white/90 bg-[#8F87F1]/80 px-4 py-2 rounded-full backdrop-blur-sm w-fit">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-              </svg>
-              <span className="font-medium">{nursery.address}</span>
-            </div>
-          </div>
+  <div className="min-h-screen bg-gradient-to-br from-[#f0f7ff] to-[#e6f0fa]">
+    {/* Hero Section */}
+    <div className="relative h-70 sm:h-55 md:h-70 overflow-hidden">
+      <div 
+        className="absolute inset-0 w-full h-full bg-cover bg-center"
+        style={{
+          backgroundImage: `url(http://localhost:5000/uploads/${nursery.nurseryPhoto.replace("\\", "/")})`,
+          filter: 'blur(8px)'
+        }}
+      ></div>
+
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-black/30"></div>
+
+      {/* Content */}
+      <div className="relative z-10 h-full flex flex-col justify-end px-4 sm:px-6 lg:px-8 pb-10">
+        <h1 className="text-white text-3xl sm:text-4xl md:text-5xl font-bold mb-3 drop-shadow-lg">
+          {nursery.nurseryName}
+        </h1>
+        <div className="flex items-center text-white/90 bg-[#8F87F1]/80 px-4 py-2 rounded-full backdrop-blur-sm w-fit">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+          </svg>
+          <span className="font-medium">{nursery.address}</span>
         </div>
       </div>
-      <div className='w-full h-1 bg-gradient-to-r from-[#6A60E9] to-[#8F87F1]'></div>
+    </div>
 
+    {/* Divider */}
+    <div className="w-full h-1 bg-gradient-to-r from-[#6A60E9] to-[#8F87F1]"></div>
       {/* Main Content */}
-      <div className="container mx-auto px-6 py-12 -mt-10 relative z-20">
-        <div className="flex flex-col lg:flex-row gap-10 mt-10">
+      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-20">
+       <div className="flex flex-col md:flex-col lg:flex-row gap-10 mt-5">
           {/* Left Column - Image & Actions */}
-          <div className="lg:w-1/2">
+          <div className="w-full lg:w-1/2">
             <div className="rounded-2xl overflow-hidden shadow-2xl border-4 border-white transform transition-transform duration-300">
               <img
                 src={`http://localhost:5000/uploads/${nursery.nurseryPhoto.replace("\\", "/")}`}
-                className="w-full h-96 object-cover"
+                className="w-full h-64 sm:h-80 md:h-96 object-cover"
                 alt={nursery.nurseryName}
               />
             </div>
@@ -240,7 +249,7 @@ export default function NurseryDetailsPage() {
             {/* Nursery Description */}
             <div className="mt-10 bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
               <h3 className="text-2xl font-bold text-gray-800 mb-6 pb-2 border-b border-gray-200">About Our Nursery</h3>
-              <p className="text-gray-600 leading-relaxed text-lg">{nursery.description}</p>
+              <p className="text-gray-600 leading-relaxed text-lg break-all">{nursery.description}</p>
               
               {/* Services Section */}
               <div className="mt-8">
@@ -262,7 +271,7 @@ export default function NurseryDetailsPage() {
           </div>
 
           {/* Right Column - Nursery Info */}
-          <div className="lg:w-1/2">
+          <div className="w-full lg:w-1/2">
             <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 h-199">
               <h2 className="text-3xl font-bold text-gray-800 mb-8 pb-4 border-b border-gray-200 flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 mr-3 text-[#8F87F1]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -322,6 +331,20 @@ export default function NurseryDetailsPage() {
                     <p className="text-gray-800 text-lg mt-1">{nursery.minAge} - {nursery.maxAge} months</p>
                   </div>
                 </div>
+                <div className="flex items-start p-4 hover:bg-gray-50 rounded-xl transition-colors duration-200">
+  <div className="bg-[#f0f1ff] p-3 rounded-full mr-4 text-[#6A60E9]">
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.5 0-3 .5-3 1.5S10.5 11 12 11s3-.5 3-1.5S13.5 8 12 8zm0 0v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+  </div>
+  <div>
+    <h4 className="font-semibold text-gray-500 text-sm uppercase tracking-wider">Monthly Fee</h4>
+    <p className="text-gray-800 text-lg mt-1">
+      {nursery.monthlyFee ? nursery.monthlyFee + "JD/month" : "Not provided"}
+    </p>
+  </div>
+</div>
+
               </div>
             </div>
           </div>
@@ -467,7 +490,7 @@ export default function NurseryDetailsPage() {
               </div>
               
               {/* Comment Text */}
-              <p className="text-gray-700 leading-relaxed pl-1 border-l-2 border-[#e6e7ff]">
+               <p className="text-gray-700 leading-relaxed pl-1 border-l-2 border-[#e8cad1] break-all">
                 {comment.text}
               </p>
               

@@ -4,20 +4,15 @@ import {
   Register,
   Login,
   Logout,
-  Payment,
   UserProfile,
   GymProfile,
   NurseryProfile,
-  // Profile,
   About,
   Contact,
-  JoinUs,
   Navbar,
   Footer,
   GymListingPage,
-  GymIndoorNurseryListingPage,
   NurseryListingPage,
-  GymIndoorNurseryDetailsPage,
   NurseryDetailsPage,
   GymDetailsPage,
   PlansPage,
@@ -25,6 +20,10 @@ import {
   NurseryRegistrationForm,
   BookingPage,
 } from "../src/components";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import ErrorPage from './components/ErrorPage'; 
+
 
 import AdminLayout from "./components/AdminDash/AdminLayout";
 import Dashboard from "./components/AdminDash/Dashboard";
@@ -33,7 +32,7 @@ import BookingsPage from "./components/AdminDash/BookingsPage";
 import ReviewsPage from "./components/AdminDash/ReviewsPage";
 import Analytics from "./components/AdminDash/Analytics";
 import JoinRequests from "./components/AdminDash/JoinRequests";
-
+import ContactMessages from "./components/AdminDash/ContactMessages";
 
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
@@ -63,16 +62,7 @@ function App() {
           <Footer /> 
         </>
       ),
-    },
-    {
-      path: "/Payment",
-      element: (
-        <>
-          <Navbar />
-          <Payment />
-          <Footer />
-        </>
-      ),
+        errorElement: <ErrorPage />
     },
     {
       path: "/UserProfile",
@@ -83,6 +73,7 @@ function App() {
           <Footer />
         </>
       ),
+        errorElement: <ErrorPage />
     },
     {
       path: "/GymProfile",
@@ -93,6 +84,7 @@ function App() {
           <Footer />
         </>
       ),
+        errorElement: <ErrorPage />
     },
     {
       path: "/NurseryProfile",
@@ -103,17 +95,9 @@ function App() {
           <Footer />
         </>
       ),
+        errorElement: <ErrorPage />
     },
-    // {
-    //   path: "/Profile",
-    //   element: (
-    //     <>
-    //       <Navbar />
-    //       <Profile />
-    //       <Footer />
-    //     </>
-    //   ),
-    // },
+
     {
       path: "/About",
       element: (
@@ -133,17 +117,9 @@ function App() {
           <Footer />
         </>
       ),
+        errorElement: <ErrorPage />
     },
-    {
-      path: "/JoinUs",
-      element: (
-        <>
-          <Navbar />
-          <JoinUs />
-          <Footer />
-        </>
-      ),
-    },
+
     {
       path: "/GymListingPage",
       element: (
@@ -153,16 +129,7 @@ function App() {
           <Footer />
         </>
       ),
-    },
-    {
-      path: "/GymIndoorNurseryListingPage",
-      element: (
-        <>
-          <Navbar />
-          <GymIndoorNurseryListingPage />
-          <Footer />
-        </>
-      ),
+        errorElement: <ErrorPage />
     },
     {
       path: "/NurseryListingPage",
@@ -173,16 +140,7 @@ function App() {
           <Footer />
         </>
       ),
-    },
-    {
-      path: "/GymIndoorNurseryDetailsPage",
-      element: (
-        <>
-          <Navbar />
-          <GymIndoorNurseryDetailsPage />
-          <Footer />
-        </>
-      ),
+        errorElement: <ErrorPage />
     },
     {
       path: "/NurseryDetailsPage/:id",
@@ -193,6 +151,7 @@ function App() {
           <Footer />
         </>
       ),
+        errorElement: <ErrorPage />
     },
     {
       path: "/gym-details/:id",
@@ -203,6 +162,7 @@ function App() {
           <Footer />
         </>
       ),
+        errorElement: <ErrorPage />
     },
     {
       path: "/choose-plan",
@@ -213,6 +173,7 @@ function App() {
           <Footer />
         </>
       ),
+        errorElement: <ErrorPage />
     },
     {
       path: "/GymRegistrationForm",
@@ -223,6 +184,7 @@ function App() {
           <Footer />
         </>
       ),
+        errorElement: <ErrorPage />
     },
     {
       path: "/NurseryRegistrationForm",
@@ -233,6 +195,7 @@ function App() {
           <Footer />
         </>
       ),
+        errorElement: <ErrorPage />
     },
     {
       path: "/Booking/:type/:id",
@@ -243,18 +206,22 @@ function App() {
           <Footer />
         </>
       ),
+        errorElement: <ErrorPage />
     },
     {
       path: "/logout",
       element: <Logout />,
+        errorElement: <ErrorPage />
     },
     {
       path: "/login",
       element: <Login />,
+        errorElement: <ErrorPage />
     },
     {
       path: "/register",
-      element: <Register />
+      element: <Register />,
+        errorElement: <ErrorPage />
     },
     {
       path: "/admin",
@@ -266,11 +233,16 @@ function App() {
         { path: "reviews", element: <ReviewsPage /> },
         { path: "analytics", element: <Analytics /> },
         { path: "JoinRequests", element: <JoinRequests /> },
+        { path: "contact-messages", element: <ContactMessages /> },
       ],
+        errorElement: <ErrorPage />
     },
   ]);
 
-  return <RouterProvider router={router} />;
+  return  <>
+      <RouterProvider router={router} />
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop={false} closeOnClick pauseOnFocusLoss draggable pauseOnHover />
+    </>
 }
 
 export default App;

@@ -21,6 +21,14 @@ const Gym = sequelize.define('Gym', {
     type: DataTypes.STRING,
     allowNull: true,
   },
+  services: {
+    type: DataTypes.JSON,
+    allowNull: true,
+  },
+  additionalServices: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+  },
   address: {
     type: DataTypes.STRING,
     allowNull: true,
@@ -88,21 +96,6 @@ Gym.associate = (models) => {
 
 module.exports = Gym;
 
-// Gym.associate = (models) => {
-//   Gym.belongsTo(models.User, {
-//     foreignKey: 'user_id',
-//     as: 'user'
-//   });
-
-//   Gym.hasMany(models.Payment, {
-//     foreignKey: "gym_id",
-//     as: "payment",
-//   });
-// };
-
-// Gym.associate = (models) => {
-//   Gym.hasMany(models.Booking, { foreignKey: "gym_id", as: "bookings" });
-// };
 
 
 

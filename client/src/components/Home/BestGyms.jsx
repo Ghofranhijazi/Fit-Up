@@ -1,79 +1,78 @@
-import React from 'react';
-import { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import AOS from "aos";
 import "aos/dist/aos.css";
-
+import axios from 'axios';
+import LazyImage from '../LazyImage';
 
 export default function BestGyms() {
-   useEffect(() => {
-          AOS.init({
-              duration: 1000,  
-              once: true,      
-          });
-      }, []);
-      
-    return (
-<div className='bg-[#f1f4fa]'>
-<section className="py-10 sm:py-16 lg:py-24" data-aos="fade-up" data-aos-delay={500}>
-  <div className="px-4 mx-auto sm:px-6 lg:px-8 max-w-7xl">
-  <div className="max-w-3xl mx-auto text-center">
-  <h2 className="text-center text-4xl font-bold text-[#9C2A46] mb-5">
-    Discover the Best Gyms With Us
-  </h2>
-  <p className="max-w-2xl mx-auto mt-4 text-xl text-gray-600">
-    Find the perfect gym to match your fitness goals. Whether you want to build strength, stay active, or improve your health, we’ve got you covered.
-  </p>
-</div>
-    <div className="grid grid-cols-1 gap-6 mt-8 sm:grid-cols-3 md:mt-16 lg:gap-x-12">
-      <div>
-        <img
-          className="w-full h-64 object-cover"
-          src="https://img.freepik.com/free-photo/gym-with-indoor-cycling-equipment_23-2149270210.jpg?ga=GA1.1.2031020980.1734978984&semt=ais_hybrid&w=740"
-          alt=""
-        />
-      </div>
-      <div>
-        <img
-           className="w-full h-64 object-cover"
-          src="https://img.freepik.com/free-photo/3d-gym-equipment_23-2151114204.jpg?ga=GA1.1.2031020980.1734978984&semt=ais_hybrid&w=740"
-          alt=""
-        />
-      </div>
-      <div>
-        <img
-           className="w-full h-64 object-cover"
-          src="https://img.freepik.com/free-photo/interior-equipment-modern-gym-close-up-view-suspension-straps-sport-fitness-health_613910-20264.jpg?ga=GA1.1.2031020980.1734978984&semt=ais_hybrid&w=740"
-          alt=""
-        />
-      </div>
-    </div>
-    <div className="grid grid-cols-1 gap-6 mt-8 sm:grid-cols-3 md:mt-16 lg:gap-x-12">
-      <div>
-        <img
-           className="w-full h-64 object-cover"
-          src="https://img.freepik.com/free-photo/health-club-without-people-with-exercise-equipment_637285-8446.jpg?ga=GA1.1.2031020980.1734978984&semt=ais_hybrid&w=740"
-          alt=""
-        />
-      </div>
-      <div>
-        <img
-           className="w-full h-64 object-cover"
-          src="https://img.freepik.com/premium-photo/hotel_664434-3668.jpg?ga=GA1.1.2031020980.1734978984&semt=ais_hybrid&w=740"
-          alt=""
-        />
-      </div>
-      <div>
-        <img
-           className="w-full h-64 object-cover"
-          src="https://img.freepik.com/premium-photo/room-with-view-cityscape-bench-with-view-city_1209906-822.jpg?ga=GA1.1.2031020980.1734978984&semt=ais_hybrid&w=740"
-          alt=""
-        />
-      </div>
-    </div>
+  const [gymImages, setGymImages] = useState([]);
 
-  </div>
-</section>
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      AOS.init({ duration: 1000, once: true });
+    }, 300);
 
-</div>
-    )
+    return () => clearTimeout(timeout);
+  }, []);
+
+  useEffect(() => {
+    const fetchGyms = async () => {
+      try {
+        const res = await axios.get('http://localhost:5000/api/gyms/random');
+        setGymImages(res.data);
+      } catch (err) {
+        console.error('Error fetching random gyms:', err);
+      }
+    };
+
+    fetchGyms();
+  }, []);
+
+  return (
+    <div className='bg-[#f1f4fa]'>
+      <section className="py-8 sm:py-12 lg:py-16 xl:py-20" data-aos="fade-up">
+        <div className="px-4 xs:px-6 sm:px-8 mx-auto max-w-7xl">
+          {/* Header Section */}
+          <div className="max-w-3xl mx-auto text-center" data-aos="fade-up" data-aos-delay="100">
+            <h2 className="text-2xl xs:text-3xl sm:text-4xl font-bold text-[#9C2A46] mb-3 sm:mb-4">
+              Discover Gyms Here With Us
+            </h2>
+            <p 
+              className="max-w-2xl mx-auto mt-3 text-sm xs:text-base sm:text-lg text-gray-600"
+              data-aos="fade-up" 
+              data-aos-delay="200"
+            >
+              Find the perfect gym to match your fitness goals. Whether you want to build strength, stay active, or improve your health, we've got you covered.
+            </p>
+          </div>
+
+          {/* Gym Images Grid */}
+          <div 
+            className="grid grid-cols-2 sm:grid-cols-3 gap-3 xs:gap-4 sm:gap-5 md:gap-6 lg:gap-8 mt-6 sm:mt-10 md:mt-12"
+            data-aos="fade-up"
+            data-aos-delay="300"
+          >
+            {Array.isArray(gymImages) && gymImages.map((gym, index) => (
+              <div 
+                key={index} 
+                className="group relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300"
+              >
+                <LazyImage
+                  src={
+                    gym.gymPhoto.startsWith('http')
+                      ? gym.gymPhoto
+                      : `http://localhost:5000/uploads/${gym.gymPhoto}`
+                  }
+                  alt={gym.name || "Gym facility"}
+                  height={200}
+                  className="w-full h-40 xs:h-48 sm:h-52 md:h-56 lg:h-64 object-cover rounded-lg transform  transition-transform duration-500"
+                />
+                {/* Gym Name Overlay */}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    </div>
+  );
 }

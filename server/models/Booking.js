@@ -43,14 +43,17 @@ const Booking = sequelize.define("Booking", {
   user_id: {
     type: DataTypes.UUID,
     allowNull: false,
+     field: 'user_id', 
   },
   gym_id: {
     type: DataTypes.UUID,
     allowNull: true,
+    field: 'gym_id',
   },
   nursery_id: {
     type: DataTypes.UUID,
     allowNull: true,
+    field: 'nursery_id',
   },
   type: {
     type: DataTypes.ENUM("gym", "nursery"),

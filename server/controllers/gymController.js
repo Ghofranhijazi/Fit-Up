@@ -1,5 +1,5 @@
 const db = require('../models');
-const { Gym, User, Payment, Nursery } = db;
+const { Gym, User, Payment, Nursery, Comment } = db;
 
 // إضافة جيم جديد
 const addGym = async (req, res) => {
@@ -17,6 +17,8 @@ const addGym = async (req, res) => {
       phone,
       address,
       description,
+      services,
+      additionalServices,
       openingHour,
       closingHour,
       category
@@ -46,6 +48,8 @@ const addGym = async (req, res) => {
       address,
       hasIndoorNursery,
       description,
+      services: JSON.parse(services),
+      additionalServices: additionalServices || '',
       gymPhoto,
       openingHour,
       closingHour,
@@ -63,6 +67,8 @@ const addGym = async (req, res) => {
       address,
       hasIndoorNursery,
       description,
+      services: JSON.parse(services),
+      additionalServices: additionalServices || '',
       gymPhoto,
       openingHour,
       closingHour,
@@ -226,7 +232,7 @@ const getNearestNursery = async (req, res) => {
 const getPendingGyms = async (req, res) => {
   try {
     const gyms = await Gym.findAll({
-      // where: { isPublished: false },
+      where: { isPublished: false },
       include: [
         { model: Payment,
           as: "payment",
@@ -248,204 +254,67 @@ const getPendingGyms = async (req, res) => {
   }
 };
 
+// for Home
+const getTopRatedGyms = async (req, res) => {
+  try {
+    const gyms = await Gym.findAll({
+      where: { isPublished: true },
+    });
 
-module.exports = { addGym, publishGym, getAllGyms, getGymById, getGymPlans, getPendingGyms, getNearestNursery };
+    const gymsWithRatings = await Promise.all(
+      gyms.map(async (gym) => {
+        const comments = await Comment.findAll({
+          where: {
+            gymId: gym.id,
+            isDeleted: false,
+          },
+        });
 
+        const totalRating = comments.reduce((sum, comment) => sum + comment.rating, 0);
+        const averageRating = comments.length > 0 ? totalRating / comments.length : 0;
 
-// const db = require('../models');
-// const { Gym, User, Payment } = db;
+        return {
+          id: gym.id,
+          name: gym.gymName,
+          trainers: gym.trainers || [],
+          gymPhoto: gym.gymPhoto,
+          averageRating: parseFloat(averageRating.toFixed(1)),
+          totalComments: comments.length,
+        };
+      })
+    );
 
+    // ترتيب حسب أعلى تقييم
+    const sortedGyms = gymsWithRatings.sort((a, b) => b.averageRating - a.averageRating);
 
+    res.json(sortedGyms.slice(0, 3)); // نعرض فقط أفضل 3
+  } catch (error) {
+    console.error("Error fetching top gyms:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
 
+const getRandomGyms = async (req, res) => {
+  try {
+    const gyms = await Gym.findAll({
+      where: { isPublished: true },
+      attributes: ['id', 'gymPhoto'], // نجيب فقط المطلوب
+    });
 
-// // إضافة جيم جديد
-// const addGym = async (req, res) => {
-//   try {
+    // فلترة الجيمات اللي فعلاً فيها صورة
+    const gymsWithPhotos = gyms.filter(gym => !!gym.gymPhoto);
 
-//     console.log("Received location:", req.body.location);
-//     console.log("Received plans:", req.body.plans);
-//     console.log("Received trainers:", req.body.trainers);
-//     console.log("Received gymName:", req.body.gymName);
-//     console.log("Received email:", req.body.email);
-//     console.log("Received address:", req.body.address);
-//     console.log("Received description:", req.body.description);
-//     console.log("Received user_id:", req.body.user_id);
-//     console.log("Received phone:", req.body.phone);
-//     console.log("closingHour:", req.body.closingHour);
-//     console.log("openingHour:", req.body.openingHour);
-//     console.log("category:", req.body.category);
+    // اختيار عشوائي (6 عناصر مثلاً)
+    const shuffled = gymsWithPhotos.sort(() => 0.5 - Math.random());
+    const selected = shuffled.slice(0, 6);
 
+    res.json(selected);
+  } catch (error) {
+    console.error("Error fetching random gyms:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
 
-//     const {
-//       user_id,
-//       gymName,
-//       email,
-//       phone,
-//       address,
-//       hasIndoorNursery,
-//       description,
-//       openingHour,
-//       closingHour,
-//       location,
-//       plans,
-//       trainers,
-//       category,
-//     } = req.body;
-
-//     const gymPhoto = req.files['gymPhoto'] ? req.files['gymPhoto'][0].filename : null;
-//     const trainerImages = req.files['trainerPhotos'] || [];
-
-//     console.log("Files received:", req.files);
-//     console.log("Body received:", req.body);
-    
-//     const parsedTrainers = JSON.parse(req.body.trainers).map((trainer, index) => ({
-//      ...trainer,
-//      photo: trainer.photo ? trainerImages[index]?.filename : null
-//     }));
-
-    
-//         if (!user_id || !gymName || !email || !phone || !address) {
-//           return res.status(400).json({ message: "Missing required fields" });
-//         }
-
-//     // إنشاء الجيم الجديد
-//     const newGym = await Gym.create({
-//       user_id,
-//       gymName,
-//       email,
-//       phone,
-//       address,
-//       hasIndoorNursery: hasIndoorNursery, // directly use the boolean value
-//       description,
-//       gymPhoto,
-//       openingHour,
-//       closingHour,
-//       category,
-//       location: JSON.parse(location),
-//       plans: JSON.parse(plans),
-//       trainers: parsedTrainers,
-//     });
-
-//     console.log("gym dataaaa" + newGym)
-
-//     res.status(201).json({
-//       message: "Gym registered successfully",
-//       gym: newGym,
-//     });
-//   } catch (error) {
-//     console.error("Erroooor:", error);
-//     res.status(500).json({ error: error.message });
-//   }
-// };
-
-// const publishGym = async (req, res) => {
-//   const { id } = req.params;
-
-//   try {
-//     // تحديث حالة النشر
-//     const gym = await Gym.findByPk(id);
-//     if (!gym) return res.status(404).json({ message: "Gym not found" });
-
-//     gym.isPublished = true;
-//     await gym.save();
-
-//     // تحديث دور المستخدم المرتبط بهذا الجيم
-//     const user = await User.findOne({ where: { user_id: gym.user_id } });
-//     console.log("User found:", user);
-//     if (user && user.role === "user") {
-//       user.role = "gymOwner";
-//       await user.save();
-//     }
-
-//     res.status(200).json({ message: "Gym published and user promoted to gymOwner" });
-//   } catch (error) {
-//     console.error("Error publishing gym:", error);
-//     res.status(500).json({ error: error.message });
-//   }
-// };
-
-// // Controller function for getting all gyms
-// const getAllGyms = async (req, res) => {
-//   try {
-//     const gyms = await Gym.findAll({ where : { isPublished : true } });
-//     res.json({ gyms }); // Ensure you're sending the data as { gyms: [...] }
-//   } catch (error) {
-//     console.error('Error fetching gyms:', error);
-//     res.status(500).json({ error: error.message });
-//   }
-// };
-
-// const getGymById = async (req, res) => {
-//   const { id } = req.params;
-
-//   try {
-//     const gym = await Gym.findByPk(id);
-
-//     if (!gym) {
-//       return res.status(404).json({ message: "Gym not found" });
-//     }
-
-//     res.status(200).json({ gym });
-//   } catch (error) {
-//     console.error("Error fetching gym:", error);
-//     res.status(500).json({ message: "Something went wrong", error: error.message });
-//   }
-// };
+module.exports = { addGym, publishGym, getAllGyms, getGymById, getGymPlans, getPendingGyms, getNearestNursery, getTopRatedGyms, getRandomGyms };
 
 
-// const getGymPlans = async (req, res) => {
-//   const { id } = req.params;
-//   console.log("Received ID in Backend:", id); // ✅ افحصي القيم في السيرفر
-
-//   if (!id) {
-//     return res.status(400).json({ error: "Gym ID is required" });
-//   }
-
-//   try {
-//     const gym = await Gym.findByPk(id);
-
-//     if (!gym) {
-//       return res.status(404).json({ message: "Gym not found" });
-//     }
-
-//     // التحقق من وجود خطط
-//     if (!gym.plans || gym.plans.length === 0) {
-//       return res.status(200).json([]);
-//     }
-
-//    // إرجاع الخطط كـ JSON
-//    res.status(200).json(gym.plans || []);
-//   } catch (error) {
-//     console.error("Error fetching gym plans:", error);
-//     res.status(500).json({ message: "Server error" });
-//   }
-// };
-
-// const getPendingGyms = async (req, res) => {
-//   try {
-//     const gyms = await Gym.findAll({
-//       where: { isPublished: false },
-//       include: [
-//         {
-//           model: Payment,
-//           as: "payment",
-//         },
-//         {
-//           model: User,
-//           as: "user",
-//         },
-//       ],
-//     });
-
-//     res.status(200).json({ gyms });
-//   } catch (error) {
-//     console.error("Error fetching pending gyms:", error);
-//     res.status(500).json({
-//       message: "Error loading pending gyms",
-//       error: error.message,
-//     });
-//   }
-// };
-
-
-// module.exports = { addGym, publishGym, getAllGyms, getGymById, getGymPlans, getPendingGyms };

@@ -50,6 +50,10 @@ const Nursery = sequelize.define('Nursery', {
     type: DataTypes.STRING,
     allowNull: true,
   },
+  monthlyFee: {
+  type: DataTypes.STRING,
+  allowNull: true,
+},
   openingHour: {
     type: DataTypes.STRING,
     allowNull: true,
@@ -74,10 +78,10 @@ const Nursery = sequelize.define('Nursery', {
     type: DataTypes.JSON,
     allowNull: true,
   },
-  documents: {
-    type: DataTypes.JSON,
-    allowNull: true,
-  },
+  // documents: {
+  //   type: DataTypes.JSON,
+  //   allowNull: true,
+  // },
   isPublished: {
     type: DataTypes.BOOLEAN,
     defaultValue: false,

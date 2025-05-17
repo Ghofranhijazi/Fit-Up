@@ -5,6 +5,8 @@ import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { motion } from 'framer-motion';
 import { useSelector } from "react-redux";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const BookingPage = () => {
   const { id, type } = useParams();
@@ -24,18 +26,25 @@ const BookingPage = () => {
   const [showPaymentSection, setShowPaymentSection] = useState(false);
   const navigate = useNavigate();
 
-  // ✅ Fetch plans
 useEffect(() => {
   if (!id) {
     console.error("No ID received in BookingPage");
     return;
   }
 
-  // تحقق من النوع قبل تنفيذ الطلب
-  if (type !== "gym") {
-    console.log("Type is not gym, skipping plan fetch");
-    return;
-  }
+  const fetchNurseryDetails = async () => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/nurseries/${id}`);
+      const nursery = response.data.nursery;
+
+      setFormData((prev) => ({
+        ...prev,
+        selectedPlan: parseFloat(nursery.monthlyFee), // 🟣 خزّن سعر الحضانة تلقائيًا
+      }));
+    } catch (error) {
+      console.error("Error fetching nursery info:", error);
+    }
+  };
 
   const fetchPlans = async () => {
     try {
@@ -47,8 +56,14 @@ useEffect(() => {
     }
   };
 
-  fetchPlans();
+  if (type === "nursery") {
+    fetchNurseryDetails();
+  } else if (type === "gym") {
+    fetchPlans();
+  }
+
 }, [id, type]);
+
 
 
   // ✅ Fetch user data (username, email) and autofill
@@ -85,44 +100,46 @@ useEffect(() => {
     setShowPaymentSection(true);
   };
 
-  const handlePaymentSuccess = async (details, data) => {
-    console.log("Payment Successful", details, data);
-    alert("Payment successful! Your order will be reviewed to complete the booking process.");
-    navigate("/");
+const handlePaymentSuccess = async (details, data) => {
+  console.log("Payment Successful", details, data);
 
-    if (!userId || !id) {
-      alert("An error occurred retrieving user or gym data.");
-      return;
-    }
+  if (!userId || !id) {
+    toast.error("An error occurred retrieving user or gym data.");
+    return;
+  }
 
-    const bookingData = {
-      username: formData.username,
-      email: formData.email,
-      phone: formData.phone,
-      bookingDate: formData.bookingDate,
-      selectedPlan: formData.selectedPlan,
-      paymentDetails: details,
-      type, // "gym" أو "nursery"
-      gym_id: type === "gym" ? id : null,
-      nursery_id: type === "nursery" ? id : null,
-      user_id: userId,
-    };
-
-    try {
-      const response = await axios.post('http://localhost:5000/api/booking/create', bookingData);
-      console.log('Booking saved successfully:', response.data);
-    } catch (error) {
-      console.error('Error saving booking:', error);
-    }
+  const bookingData = {
+    username: formData.username,
+    email: formData.email,
+    phone: formData.phone,
+    bookingDate: formData.bookingDate,
+    selectedPlan: formData.selectedPlan,
+    paymentDetails: details,
+    type, // "gym" أو "nursery"
+    gym_id: type === "gym" ? id : null,
+    nursery_id: type === "nursery" ? id : null,
+    user_id: userId,
   };
+
+  try {
+    const response = await axios.post('http://localhost:5000/api/booking/create', bookingData);
+    console.log('Booking saved successfully:', response.data);
+    toast.success("Payment successful!");
+    navigate("/");
+  } catch (error) {
+    console.error('Error saving booking:', error);
+    toast.error("Error saving your booking. Please try again.");
+  }
+};
+
   
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-200 pb-10 pt-23">
+    <div className="flex items-center justify-center min-h-screen bg-gray-200 px-4 sm:px-6 md:px-8 pb-10 pt-28">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md bg-white rounded-xl shadow-lg p-8 transition-all duration-300 hover:shadow-xl"
+        className="w-full max-w-md md:max-w-lg lg:max-w-xl bg-white rounded-xl shadow-lg p-8 transition-all duration-300 hover:shadow-xl"
       >
         <motion.div
           initial={{ scale: 0.9 }}
@@ -145,7 +162,7 @@ useEffect(() => {
           </p>
         </motion.div>
   
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5 px-1 sm:px-0">
           {/* Full Name */}
           <div>
             <label
@@ -308,6 +325,19 @@ useEffect(() => {
           </option>
         ))}
       </select>
+      {type === "nursery" && (
+  <div>
+    <label className="block text-sm font-medium text-gray-700 mb-1">
+      Monthly Fee
+    </label>
+    <input
+      type="text"
+      value={`$${formData.selectedPlan} USD`}
+      readOnly
+      className="block w-full py-3 px-4 border border-gray-300 bg-gray-100 rounded-lg text-gray-700"
+    />
+  </div>
+)}
       <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
         <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
           <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -341,16 +371,25 @@ useEffect(() => {
               </div>
             </div>
             
-            <div className="flex justify-center">
-              <PayPalScriptProvider options={{ "client-id": "AWlqK69G-HWWsKgNdZSxt8Zu1NoS6cxDw9FykkNDBaO0t-dc9QWoMX7H-rrgffswXyvtgy0NHmqtbZXQ" }}>
+            <div className="flex justify-center overflow-x-auto">
+              {type === "nursery" || formData.selectedPlan ? (
+             <PayPalScriptProvider options={{
+  "client-id": "AWlqK69G-HWWsKgNdZSxt8Zu1NoS6cxDw9FykkNDBaO0t-dc9QWoMX7H-rrgffswXyvtgy0NHmqtbZXQ",
+  "intent": "capture",
+  "components": "buttons",
+  "data-user-flow": "popup"
+}}>
              <PayPalButtons
-  createOrder={(data, actions) => {
+              disabled={!formData.selectedPlan}
+              forceReRender={[formData.selectedPlan, type]} // ✅ أي متغير يؤثر على الدفع
+              createOrder={(data, actions) => {
     // تحديد قيمة المبلغ حسب النوع
     let amountValue = "0.00";
     if (type === "gym" && formData.selectedPlan) {
       amountValue = parseFloat(formData.selectedPlan).toFixed(2); // تأكد إنها قيمة رقمية بصيغة صحيحة
     } else if (type === "nursery") {
-      amountValue = "10.00"; // قيمة ثابتة لحجز الحضانة (مثال، غيّرها حسب السعر الحقيقي)
+      amountValue = parseFloat(formData.selectedPlan).toFixed(2);
+     
     }
 
     return actions.order.create({
@@ -369,6 +408,7 @@ useEffect(() => {
 />
 
               </PayPalScriptProvider>
+              ) : null}
             </div>
           </div>
         )}

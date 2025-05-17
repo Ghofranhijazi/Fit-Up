@@ -86,15 +86,6 @@ export default function About() {
             Our goal is to provide an innovative service that combines comfort and quality to save you time and effort, while ensuring the highest levels of evaluation and credibility.
             </p>
           </div>
-          
-          {/* <div className="pt-4">
-            <button className="bg-[#C0526F] hover:bg-[#9C2A46] text-white px-6 py-3 rounded-lg flex items-center transition-colors">
-            Read our article now
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-              </svg>
-            </button>
-          </div> */}
         </div>
       </div>
     </div>

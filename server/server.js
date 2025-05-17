@@ -14,6 +14,7 @@ const bookingRoutes = require('./routes/bookingRoutes');
 const userRoutes = require('./routes/userRoutes');
 const commentRoutes = require("./routes/commentRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
+const contactRoutes = require('./routes/contact');
 
 const PORT = process.env.PORT || 5000;
 const app = express();
@@ -61,6 +62,7 @@ app.use('/api/booking', bookingRoutes);
 app.use('/api', userRoutes);
 app.use("/api/comment", commentRoutes);
 app.use("/api/payment", paymentRoutes);
+app.use('/api/contact', contactRoutes);
 
 
 // تشغيل السيرفر

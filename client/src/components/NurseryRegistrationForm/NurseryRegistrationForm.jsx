@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
 import { useSelector } from "react-redux";
 import axios from "axios";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const NurseryRegistrationForm = () => {
   const reduxUser = useSelector((state) => state.user);
@@ -30,7 +32,7 @@ const NurseryRegistrationForm = () => {
     capacity: "",
     minAge: "",
     maxAge: "",
-    documents: [],
+    monthlyFee: "",
     coordinates: { lat: 31.963158, lng: 35.930359 },
   });
 
@@ -43,9 +45,9 @@ const NurseryRegistrationForm = () => {
     "Weekend Programs"
   ];
 
-  const documentOptions = [
-    "Copy of license"
-  ];
+  // const documentOptions = [
+  //   "Copy of license"
+  // ];
 
   // Load user-specific data
   useEffect(() => {
@@ -92,17 +94,6 @@ const NurseryRegistrationForm = () => {
     });
   };
 
-  const handleDocumentUpload = (e, docType) => {
-    const files = Array.from(e.target.files);
-    setFormData(prev => ({
-      ...prev,
-      documents: [
-        ...prev.documents,
-        ...files.map(file => ({ type: docType, file }))
-      ]
-    }));
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -114,12 +105,12 @@ const NurseryRegistrationForm = () => {
   
     const validationError = validateForm();
     if (validationError) {
-      alert(validationError);
+        toast.error(validationError);
       return;
     }
   
     if (!user_id) {
-      alert("You must be logged in to submit your request.");
+     toast.error("You must be logged in to submit your request.");
       navigate("/login");
       return;
     }
@@ -137,6 +128,7 @@ const NurseryRegistrationForm = () => {
     formDataToSend.append("closingHour", formData.closingHour);
     formDataToSend.append("location", JSON.stringify(formData.coordinates)); // تحويل الموقع إلى JSON
     formDataToSend.append("capacity", formData.capacity);
+    formDataToSend.append("monthlyFee", formData.monthlyFee);
     formDataToSend.append("minAge", formData.minAge);
     formDataToSend.append("maxAge", formData.maxAge);
     formDataToSend.append("category", "nursery");
@@ -147,11 +139,7 @@ const NurseryRegistrationForm = () => {
     if (formData.nurseryPhoto) {
       formDataToSend.append("nurseryPhoto", formData.nurseryPhoto);
     }
-  
-    formData.documents.forEach((doc) => {
-      formDataToSend.append("documents", doc.file);
-    });
-  
+
     try {
       const response = await axios.post("http://localhost:5000/api/nurseries/add-nursery", formDataToSend, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -163,14 +151,14 @@ const NurseryRegistrationForm = () => {
         localStorage.setItem("user_id", user_id);
         localStorage.setItem(`userData-${user_id}`, JSON.stringify(formData));
         localStorage.removeItem("gym_id"); // ✅ إزالة gym_id في حال كان موجود
-        alert("تم تسجيل الحضانة بنجاح!");
+        toast.success("Nursery registration successful!");
         navigate("/choose-plan");
       } else {
-        alert("حدث خطأ: لم يتم استلام رقم الحضانة.");
+        toast.error("An error occurred: The nursery number was not received.");
       }
     } catch (error) {
       console.error("Error submitting nursery registration", error);
-      alert("Failed to submit nursery registration.");
+       toast.error("Failed to submit nursery registration.");
     } finally {
       setIsSubmitting(false); // إعادة التفعيل بعد انتهاء العملية
     }
@@ -186,14 +174,14 @@ const NurseryRegistrationForm = () => {
     return null;
   };
 
-  return (
-    <div className="min-h-screen bg-white-to-b from-gray-900 to-black flex flex-col p-6 mt-12">
-      <div className="flex-grow flex items-center justify-center p-4 md:p-8">
+ return (
+    <div className="min-h-screen bg-white-to-b from-gray-900 to-black flex flex-col px-4 sm:px-6 md:px-8 mt-12">
+      <div className="flex-grow flex items-center justify-center py-4">
         <div className="bg-white shadow-2xl rounded-lg w-full max-w-4xl overflow-hidden">
           {/* Form Header */}
-          <div className="bg-gradient-to-r from-[#8F87F1] to-[#6A60E9] p-6 text-white">
-            <h2 className="text-3xl font-bold">Nursery Registration</h2>
-            <p className="mt-2 opacity-80">
+          <div className="bg-gradient-to-r from-[#8F87F1] to-[#6A60E9] p-4 sm:p-6 text-white">
+            <h2 className="text-2xl sm:text-3xl font-bold">Nursery Registration</h2>
+            <p className="mt-2 opacity-80 text-sm sm:text-base">
               Fill in the details to register your nursery
             </p>
             {/* Progress Indicator */}
@@ -237,7 +225,7 @@ const NurseryRegistrationForm = () => {
             </div>
           </div>
   
-          <form onSubmit={handleSubmit} className="p-6 md:p-8">
+          <form onSubmit={handleSubmit} className="p-4 sm:p-6 md:p-8">
             {step === 1 && (
               <div className="space-y-6 animate__animated animate__fadeIn">
                 <input
@@ -276,41 +264,42 @@ const NurseryRegistrationForm = () => {
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#8F87F1] focus:border-[#8F87F1]"
                   required
+                  rows={3}
                 ></textarea>
                 
                 <div className="space-y-2">
-  <label className="block text-sm font-medium text-gray-700">
-    Types of Services Provided *
-  </label>
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-    {serviceOptions.map(service => (
-      <label key={service} className="flex items-center space-x-2">
-        <input
-          type="checkbox"
-          checked={formData.services.includes(service)}
-          onChange={() => handleServiceChange(service)}
-          className="rounded text-[#8F87F1] focus:ring-[#8F87F1]/50"
-        />
-        <span>{service}</span>
-      </label>
-    ))}
-  </div>
-  <div className="mt-4">
-    <label className="block text-sm font-medium text-gray-700 mb-1">
-      Additional Services (if not listed above)
-    </label>
-    <input
-      type="text"
-      placeholder="Enter other services you provide"
-      value={formData.additionalServices || ""}
-      onChange={(e) => setFormData(prev => ({
-        ...prev,
-        additionalServices: e.target.value
-      }))}
-      className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#8F87F1] focus:border-[#8F87F1]"
-    />
-  </div>
-</div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Types of Services Provided *
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {serviceOptions.map(service => (
+                      <label key={service} className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          checked={formData.services.includes(service)}
+                          onChange={() => handleServiceChange(service)}
+                          className="rounded text-[#8F87F1] focus:ring-[#8F87F1]/50"
+                        />
+                        <span className="text-sm sm:text-base">{service}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <div className="mt-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Additional Services (if not listed above)
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Enter other services you provide"
+                      value={formData.additionalServices || ""}
+                      onChange={(e) => setFormData(prev => ({
+                        ...prev,
+                        additionalServices: e.target.value
+                      }))}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#8F87F1] focus:border-[#8F87F1]"
+                    />
+                  </div>
+                </div>
 
                 <textarea
                   name="description"
@@ -318,6 +307,7 @@ const NurseryRegistrationForm = () => {
                   value={formData.description}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#8F87F1] focus:border-[#8F87F1]"
+                  rows={3}
                 ></textarea>
                 
                 <label className="block text-sm font-medium text-gray-700">
@@ -332,10 +322,35 @@ const NurseryRegistrationForm = () => {
                   className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm"
                 />
                 
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Monthly Fee *
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      name="monthlyFee"
+                      placeholder="Enter fee"
+                      value={formData.monthlyFee}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          monthlyFee: e.target.value,
+                        }))
+                      }
+                      className="w-full px-4 py-2 pr-24 border border-gray-300 rounded-md shadow-sm focus:ring-[#8F87F1] focus:border-[#8F87F1]"
+                      required
+                    />
+                    <span className="absolute inset-y-0 right-3 flex items-center text-gray-500 text-sm">
+                      JD/month
+                    </span>
+                  </div>
+                </div>
+
                 <div className="flex justify-end pt-4">
                   <button
                     onClick={() => setStep(2)}
-                    className="py-3 px-8 bg-[#8F87F1] hover:bg-[#6A60E9] text-white font-semibold rounded-md shadow-md transition duration-300 flex items-center"
+                    className="py-3 px-6 sm:px-8 bg-[#8F87F1] hover:bg-[#6A60E9] text-white font-semibold rounded-md shadow-md transition duration-300 flex items-center w-full sm:w-auto justify-center"
                   >
                     Next Step <span className="ml-2">→</span>
                   </button>
@@ -349,13 +364,13 @@ const NurseryRegistrationForm = () => {
                   <label className="block text-sm font-medium text-gray-700">
                     Operating Hours *:
                   </label>
-                  <div className="flex space-x-2">
+                  <div className="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
                     <input
                       type="time"
                       name="openingHour"
                       value={formData.openingHour}
                       onChange={handleChange}
-                      className="w-1/2 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#8F87F1] focus:border-[#8F87F1]"
+                      className="w-full sm:w-1/2 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#8F87F1] focus:border-[#8F87F1]"
                       required
                     />
                     <input
@@ -363,7 +378,7 @@ const NurseryRegistrationForm = () => {
                       name="closingHour"
                       value={formData.closingHour}
                       onChange={handleChange}
-                      className="w-1/2 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#8F87F1] focus:border-[#8F87F1]"
+                      className="w-full sm:w-1/2 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#8F87F1] focus:border-[#8F87F1]"
                       required
                     />
                   </div>
@@ -385,7 +400,7 @@ const NurseryRegistrationForm = () => {
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <label className="block text-sm font-medium text-gray-700">
                         Minimum age accepted *
@@ -416,46 +431,17 @@ const NurseryRegistrationForm = () => {
                     </div>
                   </div>
                 </div>
-
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Documents to be attached to the application *
-                  </label>
-                  <div className="space-y-4">
-                    {documentOptions.map(docType => (
-                      <div key={docType} className="space-y-1">
-                        <label className="text-sm text-gray-600">{docType}</label>
-                        <input
-                          type="file"
-                          onChange={(e) => handleDocumentUpload(e, docType)}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm"
-                          multiple
-                        />
-                      </div>
-                    ))}
-                  </div>
-                  {formData.documents.length > 0 && (
-                    <div className="mt-2">
-                      <p className="text-sm font-medium text-gray-700">Attached documents:</p>
-                      <ul className="list-disc pl-5 text-sm text-gray-600">
-                        {formData.documents.map((doc, index) => (
-                          <li key={index}>{doc.type}: {doc.file.name}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
   
-                <div className="flex justify-between pt-4">
+                <div className="flex flex-col sm:flex-row justify-between gap-4 pt-4">
                   <button
                     onClick={() => setStep(1)}
-                    className="py-3 px-8 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-md shadow-md transition duration-300 flex items-center"
+                    className="py-3 px-6 sm:px-8 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-md shadow-md transition duration-300 flex items-center w-full sm:w-auto justify-center"
                   >
                     <span className="mr-2">←</span> Previous
                   </button>
                   <button
                     onClick={() => setStep(3)}
-                    className="py-3 px-8 bg-[#8F87F1] hover:bg-[#6A60E9] text-white font-semibold rounded-md shadow-md transition duration-300 flex items-center"
+                    className="py-3 px-6 sm:px-8 bg-[#8F87F1] hover:bg-[#6A60E9] text-white font-semibold rounded-md shadow-md transition duration-300 flex items-center w-full sm:w-auto justify-center"
                   >
                     Next Step <span className="ml-2">→</span>
                   </button>
@@ -488,17 +474,17 @@ const NurseryRegistrationForm = () => {
                     />
                   </MapContainer>
                 </div>
-                <div className="flex justify-between pt-4">
+                <div className="flex flex-col sm:flex-row justify-between gap-4 pt-4">
                   <button
                     onClick={() => setStep(2)}
-                    className="py-3 px-8 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-md shadow-md transition duration-300 flex items-center"
+                    className="py-3 px-6 sm:px-8 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-md shadow-md transition duration-300 flex items-center w-full sm:w-auto justify-center"
                   >
                     <span className="mr-2">←</span> Previous
                   </button>
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className={`py-3 px-8 bg-[#8F87F1] hover:bg-[#6A60E9] text-white font-semibold rounded-md shadow-md transition duration-300 flex items-center ${
+                    className={`py-3 px-6 sm:px-8 bg-[#8F87F1] hover:bg-[#6A60E9] text-white font-semibold rounded-md shadow-md transition duration-300 flex items-center w-full sm:w-auto justify-center ${
                       isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
                     }`}
                   >

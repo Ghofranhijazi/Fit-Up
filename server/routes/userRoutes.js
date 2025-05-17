@@ -3,6 +3,8 @@ const router = express.Router();
 const userController = require('../controllers/userController');
 const { getAllUsers, updateRole } = require('../controllers/userController');
 const upload = require('../Middlewares/upload');
+const verifyToken = require("../Middlewares/authMiddleware");
+const isAdmin = require("../Middlewares/isAdmin");
 
 // جلب بيانات المستخدم
 router.get('/users/:userId', userController.getProfile);
@@ -20,6 +22,6 @@ router.get('/nurseries/:nurseryOwnerId/bookings', userController.getNurseryBooki
 router.put('/bookings/:bookingId/status', userController.updateBookingStatus);
 
 // for admin dash
-router.get('/all', getAllUsers);
+router.get('/all', verifyToken, isAdmin, getAllUsers);
 
 module.exports = router;
