@@ -28,16 +28,8 @@ const addNursery = async (req, res) => {
 
   console.log("Nursery Photoooooooo:", nurseryPhoto);
 
-
-const documentFiles = req.files['documents'] || [];
-
     console.log("Files received:", req.files);
     console.log("Body received:", req.body);
-    
-    // const parsedDocuments = documentFiles.map(file => ({
-    //   type: file.originalname.split('_')[0], // Extract document type from filename
-    //   file: file.filename
-    // }));
 
     if (!user_id || !nurseryName || !email || !phone || !address) {
       return res.status(400).json({ message: "Missing required fields" });

@@ -23,6 +23,7 @@ import {
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ErrorPage from './components/ErrorPage'; 
+import { Helmet } from 'react-helmet';
 
 
 import AdminLayout from "./components/AdminDash/AdminLayout";
@@ -240,6 +241,16 @@ function App() {
   ]);
 
   return  <>
+
+  <Helmet>
+<title>Gym & Nursery Platform</title>
+<meta name="description" content="A platform for easily booking gyms and nurseries online." />
+<meta name="keywords" content="Gym clubs, nurseries, booking, subscription, sports, children" />
+<meta name="author" content="Gym & Nursery Team" />
+<meta property="og:title" content="Gym & Nursery Platform" />
+<meta property="og:description" content="A smart platform that combines gym and nursery services in one place." />
+</Helmet>
+
       <RouterProvider router={router} />
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop={false} closeOnClick pauseOnFocusLoss draggable pauseOnHover />
     </>

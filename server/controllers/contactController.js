@@ -25,7 +25,7 @@ exports.createContact = async (req, res) => {
   }
 };
 
-
+// For admin dash
 exports.getAllContacts = async (req, res) => {
   try {
     const messages = await ContactUs.findAll({ order: [['createdAt', 'DESC']] });

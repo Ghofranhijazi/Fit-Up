@@ -146,32 +146,6 @@ exports.updateBookingStatus = async (req, res) => {
   }
 };
 
-// exports.updateBookingStatus = async (req, res) => {
-//   const { bookingId } = req.params;
-//   const { status } = req.body;
-
-//   try {
-//     const booking = await Booking.findByPk(bookingId, {
-//       include: [
-//         { model: User, as: "user", attributes: ['username', 'email'] }, // ✅ استخدم alias الصحيح
-//     { model: Gym, as: "gym", attributes: ['gymName'] }              // ✅ نفس الشيء هنا
-//       ]
-//     });
-//     if (!booking) return res.status(404).json({ message: 'Booking not found' });
-
-//     booking.status = status;
-//     await booking.save();
-
-//     res.json({ message: 'Booking status updated successfully', booking });
-//   } catch (error) {
-//     console.error('Error updating booking status:', error);
-//     res.status(500).json({ message: 'Failed to update booking status', error });
-//   }
-// };
-
-
-
-
 
 //for admin dash
 exports.getAllUsers = async (req, res) => {

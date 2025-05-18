@@ -89,8 +89,6 @@ exports.createPayment = async (req, res) => {
       return res.status(400).json({ error: "لا يمكن إرسال gym_id و nursery_id معًا." });
     }
 
-    // Since we're not using paypal/checkout-server-sdk anymore, we'll assume order validation is done client-side
-    // You can perform additional verification, if needed, based on your business logic
 
     // If you want to verify the amount sent to the backend
     const paidAmount = parseFloat(amount);

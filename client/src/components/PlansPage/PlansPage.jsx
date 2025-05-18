@@ -236,7 +236,6 @@ console.log("nursery_id from localStorage:", nursery_id);
               }
               onApprove={(data, actions) => {
                 console.log("PayPal order ID:", data.orderID);
-                // toast.success("Payment successful!");
                 return actions.order.capture().then(() => handleApprove(data));
               }}
               onError={(err) => {

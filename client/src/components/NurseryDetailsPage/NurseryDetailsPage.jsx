@@ -145,7 +145,7 @@ export default function NurseryDetailsPage() {
       fetchComments();  // جلب التعليقات بعد إضافة تعليق جديد
     } catch (err) {
       console.error("Error submitting comment", err);
-       toast.error("Failed to submit comment.");
+     
 
         if (err.response?.status === 403) {
              toast.error("You can only write a review after you have booked and fully paid for this Nursery.");

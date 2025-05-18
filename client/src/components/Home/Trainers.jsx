@@ -65,7 +65,7 @@ export default function Trainers() {
                     <img
                       src={`http://localhost:5000/uploads/${trainer.photo}`}
                       alt={trainer.name}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover "
                       loading="lazy"
                     />
                   </div>
