@@ -33,7 +33,7 @@ Users can search, compare ratings, and book services through an interactive map 
 - Sequelize ORM 🛠️
 
 ### **Other Tools**
-- Google API (Location Services) 📍
+- Leaflet Library for location services. 📍
 - Figma (UI/UX Design) 🎨
 - Trello (Project Management) ✅
 - Postman (API Testing) 🛠️
@@ -87,6 +87,7 @@ nodemon .\server.js
 - **Mockup**: [Figma Link](https://www.figma.com/design/IXRqSx4Daeb348GiACeGaI/Untitled?node-id=0-1&t=D6HoNxbg9i4uJ2wO-1)
 - **Wireframe**: [Figma Link](https://www.figma.com/design/IXRqSx4Daeb348GiACeGaI/Untitled?node-id=1-2&t=D6HoNxbg9i4uJ2wO-1)
 - **Trello Board**: [Trello Link](https://trello.com/invite/b/67f00932ebdff8180af74674/ATTI7698022af027345e60704b4b21d8101bD3F4929B/fitup-project)
+
 
 ---
 
