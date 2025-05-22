@@ -8,7 +8,7 @@ function verifyToken(req, res, next) {
   const token = req.cookies.token 
 
   if (!token) {
-    return res.status(401).json({ message: "No token provided" });
+    return res.status(401).json({ message: "Unauthorized" });
   }
 
   jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
@@ -18,7 +18,7 @@ function verifyToken(req, res, next) {
 
     console.log("Decoded Tokennnnnnnnnnnnnnnnnnnnnnn:", decoded);
 
-    req.user = decoded; // نخزن بيانات المستخدم في req.user
+    req.user = decoded; 
     next();
   });
 }

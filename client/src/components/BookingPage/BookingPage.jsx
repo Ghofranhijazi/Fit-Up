@@ -39,7 +39,7 @@ useEffect(() => {
 
       setFormData((prev) => ({
         ...prev,
-        selectedPlan: parseFloat(nursery.monthlyFee), // 🟣 خزّن سعر الحضانة تلقائيًا
+        selectedPlan: parseFloat(nursery.monthlyFee), 
       }));
     } catch (error) {
       console.error("Error fetching nursery info:", error);
@@ -115,7 +115,7 @@ const handlePaymentSuccess = async (details, data) => {
     bookingDate: formData.bookingDate,
     selectedPlan: formData.selectedPlan,
     paymentDetails: details,
-    type, // "gym" أو "nursery"
+    type, 
     gym_id: type === "gym" ? id : null,
     nursery_id: type === "nursery" ? id : null,
     user_id: userId,
@@ -127,9 +127,16 @@ const handlePaymentSuccess = async (details, data) => {
     toast.success("Payment successful!");
     navigate("/");
   } catch (error) {
-    console.error('Error saving booking:', error);
+  console.error('Error saving booking:', error);
+
+  const backendMessage = error?.response?.data?.message;
+
+  if (backendMessage) {
+    toast.error(backendMessage); 
+  } else {
     toast.error("Error saving your booking. Please try again.");
   }
+}
 };
 
   

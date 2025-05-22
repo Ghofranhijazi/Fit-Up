@@ -1,15 +1,13 @@
 const db = require('../models');
 const { Gym, User, Payment, Nursery, Comment } = db;
+const Joi = require('joi');
 
-// إضافة جيم جديد
 const addGym = async (req, res) => {
   try {
-    // Parse JSON strings to objects/arrays BEFORE any checks
     const location = req.body.location ? JSON.parse(req.body.location) : {};
     const plans = req.body.plans ? JSON.parse(req.body.plans) : [];
     const trainers = req.body.trainers ? JSON.parse(req.body.trainers) : [];
 
-    // Then destructure the rest
     const {
       user_id,
       gymName,
@@ -24,9 +22,60 @@ const addGym = async (req, res) => {
       category
     } = req.body;
 
-    const hasIndoorNursery = req.body.hasIndoorNursery === "true" || req.body.hasIndoorNursery === true ? true : false; 
+    const hasIndoorNursery = req.body.hasIndoorNursery === "true" || req.body.hasIndoorNursery === true ? true : false;
 
-    // File handling
+    
+    const schema = Joi.object({
+      gymName: Joi.string().min(3).max(100).required().messages({
+        "string.empty": "Gym name is required",
+        "string.min": "Gym name must be at least 3 characters"
+      }),
+      email: Joi.string().email().required().messages({
+        "string.email": "Invalid email format",
+        "string.empty": "Email is required"
+      }),
+      phone: Joi.string().pattern(/^07[0-9]{8}$/).required().messages({
+        "string.pattern.base": "Phone number must be 10 digits and start with 07",
+        "string.empty": "Phone is required"
+      }),
+      address: Joi.string().min(5).required().messages({
+        "string.empty": "Address is required",
+        "string.min": "Address must be at least 5 characters"
+      }),
+      description: Joi.string().allow('').max(1000),
+      services: Joi.string().required(),
+      additionalServices: Joi.string().allow(''),
+      openingHour: Joi.string().pattern(/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/).required().messages({
+        "string.pattern.base": "Opening hour must be in HH:MM format (e.g., 08:00)",
+        "string.empty": "Opening hour is required"
+      }),
+      closingHour: Joi.string().pattern(/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/).required().messages({
+        "string.pattern.base": "Closing hour must be in HH:MM format (e.g., 21:00)",
+        "string.empty": "Closing hour is required"
+      }),
+      hasIndoorNursery: Joi.boolean().allow(''),
+     }).unknown(true);
+
+    const validationResult = schema.validate({
+      user_id,
+      gymName,
+      email,
+      phone,
+      address,
+      description,
+      services,
+      additionalServices,
+      openingHour,
+      closingHour,
+      category,
+      hasIndoorNursery
+    });
+
+    if (validationResult.error) {
+      return res.status(400).json({ message: validationResult.error.details[0].message });
+    }
+
+    // 📸 
     const gymPhoto = req.files?.gymPhoto?.[0]?.filename || null;
     const trainerImages = req.files?.trainerPhotos || [];
 
@@ -35,30 +84,6 @@ const addGym = async (req, res) => {
       photo: trainer.photo ? trainerImages[index]?.filename : null,
     }));
 
-    if (!user_id || !gymName || !email || !phone || !address) {
-      return res.status(400).json({ message: "Missing required fields" });
-    }
-
-
-    console.log("📦 Gym Data@@@@@:", {
-      user_id,
-      gymName,
-      email,
-      phone,
-      address,
-      hasIndoorNursery,
-      description,
-      services: JSON.parse(services),
-      additionalServices: additionalServices || '',
-      gymPhoto,
-      openingHour,
-      closingHour,
-      category,
-      location,
-      plans,
-      trainers: parsedTrainers,
-    });
-    
     const newGym = await Gym.create({
       user_id,
       gymName,
@@ -89,18 +114,19 @@ const addGym = async (req, res) => {
 };
 
 
+// after admin approved
 const publishGym = async (req, res) => {
   const { id } = req.params;
 
   try {
-    // تحديث حالة النشر
+   
     const gym = await Gym.findByPk(id);
     if (!gym) return res.status(404).json({ message: "Gym not found" });
 
     gym.isPublished = true;
     await gym.save();
 
-    // تحديث دور المستخدم المرتبط بهذا الجيم
+  
     const user = await User.findOne({ where: { user_id: gym.user_id } });
     console.log("User found:", user);
     if (user && user.role === "user") {
@@ -115,11 +141,11 @@ const publishGym = async (req, res) => {
   }
 };
 
-// Controller function for getting all gyms
+// Controller function for getting all gyms in the list
 const getAllGyms = async (req, res) => {
   try {
     const gyms = await Gym.findAll({ where : { isPublished : true } });
-    res.json({ gyms }); // Ensure you're sending the data as { gyms: [...] }
+    res.json({ gyms });
   } catch (error) {
     console.error('Error fetching gyms:', error);
     res.status(500).json({ error: error.message });
@@ -135,7 +161,7 @@ const getGymById = async (req, res) => {
     if (!gym) {
       return res.status(404).json({ message: "Gym not found" });
     }
-    console.log('Gym data backenddd:', gym);  // Debug here
+    console.log('Gym data backenddd:', gym);  
     res.status(200).json({ gym });
   } catch (error) {
     console.error("Error fetching gym:", error);
@@ -146,7 +172,7 @@ const getGymById = async (req, res) => {
 
 const getGymPlans = async (req, res) => {
   const { id } = req.params;
-  console.log("Received ID in Backend:", id); // ✅ افحصي القيم في السيرفر
+  console.log("Received ID in Backend:", id);
 
   if (!id) {
     return res.status(400).json({ error: "Gym ID is required" });
@@ -159,12 +185,12 @@ const getGymPlans = async (req, res) => {
       return res.status(404).json({ message: "Gym not found" });
     }
 
-    // التحقق من وجود خطط
+   
     if (!gym.plans || gym.plans.length === 0) {
       return res.status(200).json([]);
     }
 
-   // إرجاع الخطط كـ JSON
+  
    res.status(200).json(gym.plans || []);
   } catch (error) {
     console.error("Error fetching gym plans:", error);
@@ -177,7 +203,7 @@ const getNearestNursery = async (req, res) => {
   try {
     const gymId = req.params.gymId;
 
-    // 1. جلب بيانات الجيم
+   
     const gym = await Gym.findByPk(gymId);
 
     if (!gym || !gym.location || !gym.location.lat || !gym.location.lng) {
@@ -186,14 +212,14 @@ const getNearestNursery = async (req, res) => {
 
     const { lat: gymLat, lng: gymLng } = gym.location;
 
-    // 2. جلب جميع الحضانات من قاعدة البيانات
+   
     const allNurseries = await Nursery.findAll();
 
     if (!allNurseries.length) {
       return res.status(404).json({ message: "No nurseries found." });
     }
 
-    // 3. حساب أقرب حضانة
+    // Calculate the nearest nursery
     let nearestNursery = null;
     let minDistance = Infinity;
 
@@ -213,12 +239,12 @@ const getNearestNursery = async (req, res) => {
       }
     }
 
-    // 4. التحقق من وجود حضانة صالحة
+  
     if (!nearestNursery) {
       return res.status(404).json({ message: "No nursery with valid location found nearby." });
     }
 
-    // 5. إرجاع أقرب حضانة
+  
     res.status(200).json({ nursery: nearestNursery });
 
   } catch (error) {
@@ -236,7 +262,7 @@ const getPendingGyms = async (req, res) => {
       include: [
         { model: Payment,
           as: "payment",
-          required: false,  // هذا يتيح أن تكون المدفوعات غير مرتبطة بالجيم
+          required: false,  
         },
         {
           model: User,
@@ -284,10 +310,10 @@ const getTopRatedGyms = async (req, res) => {
       })
     );
 
-    // ترتيب حسب أعلى تقييم
+   
     const sortedGyms = gymsWithRatings.sort((a, b) => b.averageRating - a.averageRating);
 
-    res.json(sortedGyms.slice(0, 3)); // نعرض فقط أفضل 3
+    res.json(sortedGyms.slice(0, 3)); 
   } catch (error) {
     console.error("Error fetching top gyms:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -298,13 +324,13 @@ const getRandomGyms = async (req, res) => {
   try {
     const gyms = await Gym.findAll({
       where: { isPublished: true },
-      attributes: ['id', 'gymPhoto'], // نجيب فقط المطلوب
+      attributes: ['id', 'gymPhoto'], 
     });
 
-    // فلترة الجيمات اللي فعلاً فيها صورة
+    
     const gymsWithPhotos = gyms.filter(gym => !!gym.gymPhoto);
 
-    // اختيار عشوائي (6 عناصر مثلاً)
+
     const shuffled = gymsWithPhotos.sort(() => 0.5 - Math.random());
     const selected = shuffled.slice(0, 6);
 

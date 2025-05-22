@@ -45,13 +45,15 @@ const NurseryRegistrationForm = () => {
     "Weekend Programs"
   ];
 
-  // const documentOptions = [
-  //   "Copy of license"
-  // ];
-
-  // Load user-specific data
   useEffect(() => {
     if (!user_id) return;
+
+    const savedForm = localStorage.getItem(`nurseryForm-${user_id}`);
+    const parsedForm = savedForm ? JSON.parse(savedForm) : null;
+
+    if (parsedForm) {
+      setFormData(parsedForm);
+    }
   
     const saved = JSON.parse(localStorage.getItem(`userData-${user_id}`)) || {};
     setSavedData(saved);
@@ -61,6 +63,12 @@ const NurseryRegistrationForm = () => {
       email: email || prev.email,
     }));
   }, [user_id, email]);
+
+  useEffect(() => {
+    if (user_id) {
+      localStorage.setItem(`nurseryForm-${user_id}`, JSON.stringify(formData));
+    }
+  }, [formData, user_id]);
 
   const validateForm = () => {
     if (!formData.nurseryName) return "Nursery name is required";
@@ -97,8 +105,8 @@ const NurseryRegistrationForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log("Form submitted"); // للتحقق إذا تم استدعاء الـ submit
-    if (isSubmitting) return; // منع التكرار
+    console.log("Form submitted"); 
+    if (isSubmitting) return; 
 
     setIsSubmitting(true);
 
@@ -121,21 +129,19 @@ const NurseryRegistrationForm = () => {
     formDataToSend.append("email", formData.email);
     formDataToSend.append("phone", formData.phone);
     formDataToSend.append("address", formData.address);
-    formDataToSend.append("services", JSON.stringify(formData.services)); // تحويل الخدمات إلى JSON
+    formDataToSend.append("services", JSON.stringify(formData.services)); 
     formDataToSend.append("additionalServices", formData.additionalServices || "");
     formDataToSend.append("description", formData.description);
     formDataToSend.append("openingHour", formData.openingHour);
     formDataToSend.append("closingHour", formData.closingHour);
-    formDataToSend.append("location", JSON.stringify(formData.coordinates)); // تحويل الموقع إلى JSON
+    formDataToSend.append("location", JSON.stringify(formData.coordinates)); 
     formDataToSend.append("capacity", formData.capacity);
     formDataToSend.append("monthlyFee", formData.monthlyFee);
     formDataToSend.append("minAge", formData.minAge);
     formDataToSend.append("maxAge", formData.maxAge);
-    formDataToSend.append("category", "nursery");
-
-    
+    formDataToSend.append("category", "nursery"); 
   
-    // إضافة الصورة إلى FormData
+   
     if (formData.nurseryPhoto) {
       formDataToSend.append("nurseryPhoto", formData.nurseryPhoto);
     }
@@ -144,27 +150,34 @@ const NurseryRegistrationForm = () => {
       const response = await axios.post("http://localhost:5000/api/nurseries/add-nursery", formDataToSend, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      console.log("Response from server:", response.data); // ✅ للتأكد
+      console.log("Response from server:", response.data); 
       const nursery = response.data.nursery;
       if (nursery && nursery.id) {
         localStorage.setItem("nursery_id", nursery.id);
         localStorage.setItem("user_id", user_id);
         localStorage.setItem(`userData-${user_id}`, JSON.stringify(formData));
-        localStorage.removeItem("gym_id"); // ✅ إزالة gym_id في حال كان موجود
+        localStorage.removeItem("gym_id"); 
+        localStorage.removeItem(`nurseryForm-${user_id}`);
         toast.success("Nursery registration successful!");
         navigate("/choose-plan");
       } else {
         toast.error("An error occurred: The nursery number was not received.");
       }
     } catch (error) {
-      console.error("Error submitting nursery registration", error);
-       toast.error("Failed to submit nursery registration.");
-    } finally {
-      setIsSubmitting(false); // إعادة التفعيل بعد انتهاء العملية
+  console.error("Error submitting nursery registration", error);
+
+  const backendMessage = error?.response?.data?.message;
+
+  if (backendMessage) {
+    toast.error(backendMessage); 
+  } else {
+    toast.error("Failed to submit nursery registration.");
+  }
+} finally {
+      setIsSubmitting(false); 
     }
   };
   
-
   const LocationMarker = ({ setCoordinates }) => {
     useMapEvents({
       click(e) {

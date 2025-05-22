@@ -42,10 +42,10 @@ console.log("Login Form Data:", loginForm);
       if (response.status === 200) {
         const userData = { id: data.userId, email: data.email, role: data.role };
       
-        // ✅ خزّن البيانات في Redux
+        // Redux
         dispatch(setUser(userData));
       
-        // ✅ خزّن البيانات في localStorage
+        // localStorage
         localStorage.setItem("user", JSON.stringify(userData));
       
         console.log("User data storedddd:", userData);
@@ -239,52 +239,3 @@ console.log("Login Form Data:", loginForm);
 );
 }
 
-
-
-// import { GoogleLogin } from '@react-oauth/google';
-// eslint-disable-next-line no-unused-vars
-
-
-//   const handleLoginSuccess = async (response) => {
-//     const { credential } = response;
-
-//     try {
-//       // Send the Google login token to the backend for verification
-//       const res = await axios.post('http://localhost:5000/auth/google-login',
-//         { token: credential },
-//         { headers: { 'Content-Type': 'application/json' } }
-//       );
-
-//       const data = res.data;
-//       console.log('User authenticated:', data);
-
-//       // Dispatch user data to the Redux store
-//       dispatch(setUser({
-//         id: data.userId,
-//         email: data.email,
-//       }));
-
-//       // Navigate to the home page or other pages as needed
-//       navigate('/');
-//     } catch (error) {
-//       console.error('Error during authentication:', error);
-//       setError('حدث خطأ أثناء تسجيل الدخول عبر جوجل. يرجى المحاولة مرة أخرى.');
-//     }
-//   };
-
-//   const handleLoginFailure = (error) => {
-//     console.error('Google Login Failure:', error);
-//     setError('فشل تسجيل الدخول عبر جوجل. حاول مرة أخرى أو استخدم طريقة أخرى.');
-//     setLoginForm({ email: '', password: '' });
-//   };
-
-
-{/* <div className="flex justify-center mt-2.5">
-            <GoogleLogin
-              onSuccess={handleLoginSuccess}
-              onError={handleLoginFailure}
-              useOneTap
-              shape="pill"
-              size="large"
-            />
-          </div> */}

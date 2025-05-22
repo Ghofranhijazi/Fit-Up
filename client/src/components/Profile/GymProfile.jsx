@@ -262,7 +262,7 @@ return (
                       borderColor: 'transparent',
                     }}
                   >
-                    {owner?.[field] || 'N/A'}
+                    {owner?.[field] || 'Fill the fields'}
                   </p>
                 )}
               </div>

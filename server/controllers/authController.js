@@ -1,25 +1,45 @@
-const  User  = require('../models/User');
+const User = require('../models/User');
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
+const Joi = require("joi");  
 dotenv.config();
 
-
 const register = async (req, res) => {
-  const { username, email, password } = req.body; 
-  console.log("body", JSON.stringify(req.body, null, 2));
+  const { username, email, password } = req.body;
 
-  // التحقق من البيانات المدخلة
-  if (!username || !email || !password) {
-    return res.status(400).json({ message: "Please provide all required fields (username, email, password)" });
+
+  const schema = Joi.object({
+    username: Joi.string().min(3).max(30).required().messages({
+      "string.empty": "Username is required",
+      "string.min": "Username must be at least 3 characters",
+    }),
+    email: Joi.string().email().required().messages({
+      "string.email": "Invalid email format",
+      "string.empty": "Email is required"
+    }),
+   password: Joi.string()
+  .min(6)
+  .pattern(new RegExp("^(?=.*[A-Z])(?=.*\\d).+$"))
+  .required()
+  .messages({
+    "string.min": "Password must be at least 6 characters",
+    "string.empty": "Password is required",
+    "string.pattern.base": "Password must contain at least one uppercase letter and one number"
+  })
+   }).unknown(true);
+
+  
+  const { error } = schema.validate(req.body);
+  if (error) {
+    return res.status(400).json({ message: error.details[0].message });
   }
 
   try {
-    
     const existingUser = await User.findOne({ where: { email } });
 
     if (existingUser) {
-      return res.status(409).json({ message: "User already exists" });
+      return res.status(409).json({ message: "User already Registration" });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -40,17 +60,14 @@ const register = async (req, res) => {
         username: newUser.username,
         role: newUser.role,
       },
-      process.env.JWT_SECRET,
-      // { expiresIn: "0" }
+      process.env.JWT_SECRET
     );
-
-    console.log(token);
 
     res.cookie("token", token, {
       httpOnly: true,
       maxAge: 3600 * 1000,
-      sameSite: "lax",   // ✅ ضروري للمطابقة مع logout
-      path: "/",         // ✅ تحديد المسار
+      sameSite: "lax",
+      path: "/",
     });
 
     return res.status(201).json({
@@ -58,12 +75,11 @@ const register = async (req, res) => {
       userId: newUser.user_id,
     });
   } catch (error) {
-    console.error("erroooooooor"+ error + " Email: ", email );
-    console.error(req.body);
-    console.error("User model:", User);
+    console.error("Error:", error);
     return res.status(500).json({ message: "Error registering user" });
   }
 };
+
 
 const login = async (req, res) => {
   const { email, password } = req.body;
@@ -72,7 +88,7 @@ const login = async (req, res) => {
    
     const user = await User.findOne({ where: { email } });
     if (!user) {
-      return res.status(401).json({ message: "Invalid credentials" });
+      return res.status(401).json({ message: "Please log in first"});
     }
 
     console.log("401--->> " + password, user.password);
@@ -80,7 +96,7 @@ const login = async (req, res) => {
     
 
     if (!isMatch) {
-      return res.status(401).json({ message: "Invalid credentials" });
+      return res.status(401).json({ message: "The password is incorrect."});
     }
     console.log(user.user_id);
 
@@ -92,14 +108,13 @@ const login = async (req, res) => {
         role: user.role,
       },
       process.env.JWT_SECRET,
-      // { expiresIn: "0" }
     );
 
     res.cookie("token", token, {
       httpOnly: true,
       maxAge: 3600 * 1000,
-      sameSite: "lax",   // ✅ ضروري للمطابقة مع logout
-      path: "/",         // ✅ تحديد المسار
+      sameSite: "lax",   
+      path: "/",      
     });
 
     return res.status(200).json({
@@ -118,7 +133,7 @@ const logout = (req, res) => {
   res.clearCookie("token", {
   httpOnly: true,
   sameSite: "lax",
-  path: "/",  // ✅ ضروري للمطابقة مع login
+  path: "/", 
 });
   res.json({ message: "Logged out successfully" });
 };

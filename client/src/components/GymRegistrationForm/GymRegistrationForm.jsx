@@ -50,22 +50,39 @@ const GymRegistrationForm = () => {
   "Yoga/Pilates",
 ];
 
-  // Load user-specific data (plan, basic info)
+ 
   useEffect(() => {
     if (!user_id) return;
+
+  const savedForm = localStorage.getItem(`gymForm-${user_id}`);
+  const parsedForm = savedForm ? JSON.parse(savedForm) : null;
   
     const saved = JSON.parse(localStorage.getItem(`userData-${user_id}`)) || {};
     const selectedPlan = JSON.parse(localStorage.getItem("selectedPlan"));
   
-    setSavedData(saved); // هنا بنخزن البيانات المحفوظة
+   if (parsedForm) {
     setFormData((prev) => ({
       ...prev,
-      gymName: saved.gymName || prev.gymName || "", // تأكد من السلسلة النهائية دائماً تحتوي على قيمة افتراضية
+      ...parsedForm,
+    }));
+  } else {
+    setFormData((prev) => ({
+      ...prev,
+      gymName: saved.gymName || prev.gymName || "",
       email: email || prev.email,
       planName: selectedPlan?.name || prev.planName,
       price: selectedPlan?.price || prev.price,
     }));
-  }, [user_id, email]);
+  }
+
+  setSavedData(saved);
+}, [user_id, email]);
+
+useEffect(() => {
+  if (user_id) {
+    localStorage.setItem(`gymForm-${user_id}`, JSON.stringify(formData));
+  }
+}, [formData, user_id]);
 
   const validateForm = () => {
     if (!formData.gymName) return "Gym name is required";
@@ -153,24 +170,24 @@ const GymRegistrationForm = () => {
     e.preventDefault();
     
   
-    if (isSubmitting) return; // 🔒 منع الإرسال المتكرر
-  setIsSubmitting(true); // ✅ تفعيل الفلاج عند الإرسال
+    if (isSubmitting) return; 
+  setIsSubmitting(true); 
 
   const validationError = validateForm();
   if (validationError) {
     toast.error(validationError);
-    setIsSubmitting(false); // ⛔️ إعادة التمكين في حالة خطأ
+    setIsSubmitting(false);
     return;
   }
 
   if (!user_id) {
     toast.error("You must be logged in to submit your request.");
     navigate("/login");
-    setIsSubmitting(false); // ⛔️ إعادة التمكين
+    setIsSubmitting(false); 
     return;
   }
 
-    // تأكد من أن جميع الحقول مملوءة
+    
     if (!formData.gymName || !formData.phone || !formData.address || !formData.coordinates) {
      toast.error("Please fill in all required fields.");
     return;
@@ -202,7 +219,7 @@ const GymRegistrationForm = () => {
       form.append("gymPhoto", formData.gymPhoto);
     }
   
-    formData.trainers.forEach((trainer, index) => {
+    formData.trainers.forEach((trainer) => {
       if (trainer.photo instanceof File) {
         form.append("trainerPhotos", trainer.photo);
       }
@@ -215,21 +232,30 @@ const GymRegistrationForm = () => {
         },
       });
     
-      const gymId = response.data.gym?.id; // تأكد من استلام ID الجيم من الرد
+      const gymId = response.data.gym?.id; 
       if (gymId) {
-        localStorage.setItem("gym_id", gymId); // حفظ الـ gym_id
-        localStorage.setItem("user_id", user_id); // حفظ user_id للاستخدام لاحقًا
-        localStorage.removeItem("nursery_id"); // ✅ إزالة أي بيانات حضانة
+        localStorage.setItem("gym_id", gymId); 
+        localStorage.setItem("user_id", user_id); 
+        localStorage.removeItem("nursery_id");
+        localStorage.removeItem(`gymForm-${user_id}`);
       }
     
-      toast.success("Gym submitted successfully!");
+      // toast.success("Gym submitted successfully!");
       navigate("/choose-plan");
     } catch (error) {
-      console.error("Submission error:", error);
-      toast.error("Submission error");
-    }
+  console.error("Submission error:", error);
+
+
+  const backendMessage = error?.response?.data?.message;
+
+  if (backendMessage) {
+    toast.error(backendMessage);
+  } else {
+    toast.error("Something went wrong during submission");
+  }
+}
     finally {
-      setIsSubmitting(false); // ✅ سواء نجح أو فشل يرجع يقدر يرسل مرة ثانية
+      setIsSubmitting(false); 
     }
   };
 
@@ -324,7 +350,7 @@ const GymRegistrationForm = () => {
                   placeholder="Gym Name *"
                   value={formData.gymName}
                   onChange={handleChange}
-                  readOnly={!!savedData.gymName} // فقط إذا محفوظ مسبقًا
+                  readOnly={!!savedData.gymName} 
                   className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#C0526F] focus:border-[#C0526F]"
                   required
                 />

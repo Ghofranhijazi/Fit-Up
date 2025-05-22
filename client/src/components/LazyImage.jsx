@@ -1,12 +1,10 @@
-// src/components/LazyImage.jsx
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import LazyLoad from 'react-lazyload';
 
-const LazyImage = ({ src, alt, height = 200, className = '', ...rest }) => {
+  const LazyImage = ({ src, alt, height = 200, className = '', ...rest }) => {
   const [loaded, setLoaded] = useState(false);
   const imgRef = useRef(null);
 
-  // ✅ يتحقق ما إذا كانت الصورة مخزنة مسبقًا (من الكاش مثلاً)
   useEffect(() => {
     if (imgRef.current && imgRef.current.complete) {
       setLoaded(true);

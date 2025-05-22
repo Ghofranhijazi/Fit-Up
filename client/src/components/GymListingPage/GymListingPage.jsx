@@ -6,45 +6,44 @@ import LazyImage from '../LazyImage';
 
 
 export default function GymListingPage() {
-  const [gyms, setGyms] = useState([]); // To store gyms list
-  const [loading, setLoading] = useState(true); // To track data loading
-  const [error, setError] = useState(null); // To handle errors
+  const [gyms, setGyms] = useState([]); 
+  const [loading, setLoading] = useState(true); 
+  const [error, setError] = useState(null); 
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
-  const category = queryParams.get("category");  // قراءة الفئة المختارة
-  
+  const category = queryParams.get("category");  
   
 
   // Fetch gyms data from API
   useEffect(() => {
     const fetchGyms = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/gyms/all'); // API endpoint for gyms
+        const response = await axios.get('http://localhost:5000/api/gyms/all'); 
         console.log('dataaaaaaaa', JSON.stringify(gyms, null, 2));
-        console.log('Full Response:', response.data); // Check the full response structure
-        const allGyms = response.data.gyms; // Make sure gyms are located within response.data.gyms
+        console.log('Full Response:', response.data); 
+        const allGyms = response.data.gyms; 
 
-        // تصفية الجيمات حسب الفئة المختارة
+
         let filteredGyms = [];
         if (category === "Gym with indoor nursery") {
           filteredGyms = allGyms.filter(gym => gym.hasIndoorNursery);
         } else if (category === "Gym only") {
           filteredGyms = allGyms.filter(gym => !gym.hasIndoorNursery);
         } else {
-          filteredGyms = allGyms; // عرض جميع الجيمات في حال لم تكن هناك فئة مختارة
+          filteredGyms = allGyms; 
         }
 
         setGyms(filteredGyms);
       } catch (error) {
         console.error('Error fetching gyms:', error);
-        setError('Failed to fetch gyms'); // Error handling
+        setError('Failed to fetch gyms'); 
       } finally {
-        setLoading(false); // Set loading to false after fetching
+        setLoading(false); 
       }
     };
 
     fetchGyms();
- }, [category]); // إعادة جلب الجيمات كلما تغيرت الفئة
+ }, [category]); 
 
   if (loading) return (
     <div className="flex justify-center items-center h-screen bg-gradient-to-br from-[#f8f1f3] to-[#f9f9f9]">
@@ -54,7 +53,7 @@ export default function GymListingPage() {
   
 
   if (error) {
-    return <div>{error}</div>; // Show error message if any
+    return <div>{error}</div>; 
   }
 
   return (
@@ -102,7 +101,7 @@ export default function GymListingPage() {
                  <LazyImage
   src={gym.gymPhoto ? `http://localhost:5000/uploads/${gym.gymPhoto.replace("\\", "/")}` : 'fallback-image.jpg'}
   alt="Gym"
-  height={500} // أو حسب الارتفاع المطلوب
+  height={500}
    className="absolute inset-0 object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
 />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-center justify-center">

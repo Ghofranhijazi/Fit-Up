@@ -1,7 +1,7 @@
 const db = require('../models');
 const { Nursery, User, Payment } = db;
+const Joi = require('joi');
 
-// Add new nursery
 const addNursery = async (req, res) => {
   try {
     const {
@@ -23,19 +23,54 @@ const addNursery = async (req, res) => {
       monthlyFee
     } = req.body;
 
+    // ✅ تعريف مخطط Joi
+    const schema = Joi.object({
+      nurseryName: Joi.string().min(3).max(100).required().messages({
+        "string.empty": "Nursery name is required",
+        "string.min": "Nursery name must be at least 3 characters",
+      }),
+      email: Joi.string().email().required().messages({
+        "string.email": "Invalid email format",
+        "string.empty": "Email is required"
+      }),
+      phone: Joi.string().pattern(/^07[0-9]{8}$/).required().messages({
+        "string.pattern.base": "Phone number must be 10 digits and start with 07",
+        "string.empty": "Phone is required"
+      }),
+      address: Joi.string().min(5).required().messages({
+        "string.empty": "Address is required",
+        "string.min": "Address must be at least 5 characters"
+      }),
+      services: Joi.string().required(),
+      additionalServices: Joi.string().allow(''),
+      description: Joi.string().allow('').max(1000),
+      openingHour: Joi.string().pattern(/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/).required().messages({
+        "string.pattern.base": "Opening hour must be in HH:MM format",
+        "string.empty": "Opening hour is required"
+      }),
+      closingHour: Joi.string().pattern(/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/).required().messages({
+        "string.pattern.base": "Closing hour must be in HH:MM format",
+        "string.empty": "Closing hour is required"
+      }),
+      capacity: Joi.number().integer().allow(null),
+      minAge: Joi.number().integer().allow(null),
+      maxAge: Joi.number().integer().allow(null),
+      monthlyFee: Joi.number().required().messages({
+        "number.base": "Monthly fee must be a number",
+        "any.required": "Monthly fee is required"
+      }),
+     }).unknown(true);
 
-  const nurseryPhoto = req.files['nurseryPhoto'] ? req.files['nurseryPhoto'][0].filename : "default-image.jpg";
-
-  console.log("Nursery Photoooooooo:", nurseryPhoto);
-
-    console.log("Files received:", req.files);
-    console.log("Body received:", req.body);
-
-    if (!user_id || !nurseryName || !email || !phone || !address) {
-      return res.status(400).json({ message: "Missing required fields" });
+    // ✅ تنفيذ التحقق
+    const validationResult = schema.validate(req.body);
+    if (validationResult.error) {
+      return res.status(400).json({ message: validationResult.error.details[0].message });
     }
 
-    // Create new nursery
+    // ✅ التعامل مع الصورة
+    const nurseryPhoto = req.files['nurseryPhoto'] ? req.files['nurseryPhoto'][0].filename : "default-image.jpg";
+
+    // ✅ إنشاء الحضانة
     const newNursery = await Nursery.create({
       user_id,
       nurseryName,
@@ -56,17 +91,17 @@ const addNursery = async (req, res) => {
       monthlyFee,
     });
 
-    
-
     res.status(201).json({
       message: "Nursery registered successfully",
       nursery: newNursery,
     });
+
   } catch (error) {
     console.error("Error:", error);
     res.status(500).json({ error: error.message });
   }
 };
+
 
 const publishNursery = async (req, res) => {
   const { id } = req.params;

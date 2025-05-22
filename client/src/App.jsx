@@ -44,7 +44,7 @@ import { setUser } from "./Redux/userSlice";
 function App() {
   const dispatch = useDispatch();
 
-   // ✅ استرجاع بيانات المستخدم من localStorage عند أول تحميل للتطبيق
+   
    useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
@@ -243,7 +243,7 @@ function App() {
   return  <>
 
   <Helmet>
-<title>Gym & Nursery Platform</title>
+<title>FitUp - Mama and Me</title>
 <meta name="description" content="A platform for easily booking gyms and nurseries online." />
 <meta name="keywords" content="Gym clubs, nurseries, booking, subscription, sports, children" />
 <meta name="author" content="Gym & Nursery Team" />

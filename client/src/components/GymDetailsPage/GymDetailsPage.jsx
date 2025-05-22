@@ -8,7 +8,7 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector } from "react-redux";
 
-// Custom icons with better styling
+
 const gymIcon = new L.Icon({
   iconUrl: "https://cdn-icons-png.flaticon.com/128/14034/14034747.png",
   iconSize: [45, 45],
@@ -24,7 +24,7 @@ const nurseryIcon = new L.Icon({
 });
 
 function randomNearbyLocation(baseLat, baseLng) {
-  const offset = () => (Math.random() - 0.5) * 0.01; // فرق عشوائي بسيط
+  const offset = () => (Math.random() - 0.5) * 0.01; 
   return {
     lat: baseLat + offset(),
     lng: baseLng + offset()
@@ -40,7 +40,7 @@ export default function GymDetailsPage() {
   const [nearestNursery, setNearestNursery] = useState(null);
 
   const navigate = useNavigate();
-  // داخل الكومبوننت
+  
 const [comments, setComments] = useState([]);
 const [newComment, setNewComment] = useState("");
 const [rating, setRating] = useState(0);
@@ -52,7 +52,7 @@ const user = useSelector((state) => state.user);
 const fetchComments = async () => {
   try {
     const res = await axios.get(`http://localhost:5000/api/comment/gyms/${id}/comments`, { 
-      withCredentials: true // هذا مهم لكي يتم إرسال التوكن الموجود في الـ Cookies
+      withCredentials: true 
     });
     setComments(res.data);
   } catch (err) {
@@ -78,7 +78,7 @@ const handleSubmit = async (e) => {
     await axios.post(
       `http://localhost:5000/api/comment/gyms/${id}/comments`,
       
-      { text: newComment, rating }, // إرسال النص والتقييم فقط
+      { text: newComment, rating }, 
       { withCredentials: true }
     );
 
@@ -145,7 +145,7 @@ const handleSubmit = async (e) => {
         const toast = document.createElement("div");
         toast.className =
           "fixed bottom-6 right-6 bg-[#9C2A46] text-white px-6 py-3 rounded-lg shadow-xl flex items-center animate-fade-in z-50";
-        // toast.innerHTML = `Nearest nursery to ${gym.gymName} is now shown on the map`;
+       
         toast.innerHTML = `
       <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -160,7 +160,7 @@ const handleSubmit = async (e) => {
         }, 3500);
   
       } else {
-        // لا توجد حضانة قريبة، نولد موقع عشوائي قريب
+       // No nursery nearby, we give birth at a nearby location
         const fakeLocation = randomNearbyLocation(gym.location.lat, gym.location.lng);
         setNearestNursery(fakeLocation);
         toast.success(`Nearest nursery to ${gym.gymName} is now shown on the map`);
@@ -172,7 +172,7 @@ const handleSubmit = async (e) => {
       console.error("Error fetching nearest nursery", err);
       toast.error("Failed to retrieve nursery.");
   
-      // fallback في حال السيرفر فشل
+     
       const fallbackLocation = randomNearbyLocation(gym.location.lat, gym.location.lng);
       setNearestNursery(fallbackLocation);
       setShowNursery(true);
@@ -191,7 +191,7 @@ const handleSubmit = async (e) => {
     <div className="min-h-screen bg-gradient-to-br from-[#f8f1f3] to-[#f9f9f9]">
       {/* Gym Hero Section */}
    <div className="relative h-70 sm:h-55 md:h-70 overflow-hidden">
-  {/* Background Image with blur */}
+  
   <div 
     className="absolute inset-0 w-full h-full bg-cover bg-center"
     style={{
@@ -271,6 +271,7 @@ const handleSubmit = async (e) => {
                 </button>
               )}
       </div>
+
 
       {/* Gym Description */}
       <div className="mt-10 bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
@@ -564,7 +565,6 @@ const handleSubmit = async (e) => {
 
       </div>
 
-      {/* Add this to your CSS file or style tag */}
       <style jsx>{`
         .gym-marker {
           filter: drop-shadow(0 0 8px rgba(156, 42, 70, 0.4));

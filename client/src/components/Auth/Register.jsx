@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function Register() {
     const navigate = useNavigate();
@@ -27,7 +29,7 @@ export default function Register() {
             password: registerForm.password,
         };
          
-        console.log("Register form data:", body);  // تحقق من البيانات قبل إرسالها
+        console.log("Register form data:", body); 
 
         try {
             const response = await axios.post(
@@ -42,11 +44,13 @@ export default function Register() {
             console.log(response);
             navigate("/");
         } catch (error) {
-            if (error.response && error.response.status === 409) {
-                setError(error.response.data.message);
-            } else {
-                setError("An error occurred while registering. Please try again.");
-            }
+            const backendMessage = error?.response?.data?.message;
+
+if (backendMessage) {
+    toast.error(backendMessage); 
+} else {
+    toast.error("An error occurred while registering. Please try again.");
+}
         } finally {
             setIsLoading(false);
         }

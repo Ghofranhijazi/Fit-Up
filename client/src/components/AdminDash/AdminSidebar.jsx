@@ -109,7 +109,7 @@ const links = [
   { path: "/admin/users", label: "Users" },
   { path: "/admin/JoinRequests", label: "Join Requests"},
   { path: "/admin/bookings", label: "Booking" },
-  { path: "/admin/reviews", label: "Ratings" },
+  { path: "/admin/reviews", label: "Reviews" },
   { path: "/admin/contact-messages", label: "Contact Messages"},
 ];
 

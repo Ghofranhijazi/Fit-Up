@@ -9,7 +9,11 @@ exports.getCommentsForGym = async (req, res) => {
   try {
     const gymId = req.params.gymId;
     const comments = await Comment.findAll({
-      where: { gymId },
+      where: {
+        gymId,
+        isDeleted: false  // ✅ تجاهل التعليقات المحذوفة
+      },
+      
       order: [["createdAt", "DESC"]],
     });
     res.json(comments);
@@ -24,21 +28,21 @@ exports.addCommentForGym = async (req, res) => {
   const gymId = req.params.gymId;
   const { text, rating } = req.body;
 
-  // تحقق من وجود الجيم
+  
   const gym = await Gym.findByPk(gymId);
   if (!gym) {
     return res.status(404).json({ message: "Gym not found" });
   }
 
-  // تحقق إذا كان الطلب يحتوي على gymId و nurseryId في نفس الوقت
+
   if (req.body.nurseryId) {
     return res.status(400).json({ message: "Cannot send both gymId and nurseryId in the same request." });
   }
 
-   // التحقق من وجود حجز مكتمل الدفع للحضانة لهذا المستخدم
+  
   const existingBooking = await Booking.findOne({
     where: {
-       user_id: userId,      // ✅ استخدم اسم العمود الفعلي في قاعدة البيانات
+       user_id: userId,      
        gym_id: gymId,    
       paymentStatus: 'completed'
     }
@@ -49,19 +53,19 @@ exports.addCommentForGym = async (req, res) => {
   }
 
 
-  // نجيب اليوزر من الداتابيس
+
   const user = await User.findByPk(userId);
   if (!user) {
     return res.status(404).json({ message: "User not found" });
   }
 
-  // تحقق من أن التعليق يحتوي فقط على gymId أو nurseryId، ولكن ليس كلاهما
+
   if (req.body.nurseryId) {
     return res.status(400).json({ message: "NurseryId should not be provided for gym comments." });
   }
 
-  console.log("User from DB:", user); // ✅ راقب هذا
-  console.log("Username:", user.username); // 👈 هذا لازم يعطي قيمة
+  console.log("User from DB:", user); 
+  console.log("Username:", user.username); 
 
 
   try {
@@ -80,12 +84,16 @@ exports.addCommentForGym = async (req, res) => {
   }
 };
 
-// دالة لعرض تعليقات الحضانة
+
 exports.getCommentsForNursery = async (req, res) => {
   try {
     const nurseryId = req.params.nurseryId;
     const comments = await Comment.findAll({
-      where: { nurseryId },
+     where: {
+        nurseryId,
+        isDeleted: false  // ✅ فلتر عشان ما تظهر المحذوفة
+      },
+      
       order: [["createdAt", "DESC"]],
     });
     res.json(comments);
@@ -95,19 +103,19 @@ exports.getCommentsForNursery = async (req, res) => {
   }
 };
 
-// دالة لإضافة تعليق على الحضانة
+
 exports.addCommentForNursery = async (req, res) => {
   const userId = req.user.userId;
   const nurseryId = req.params.nurseryId;
   const { text, rating } = req.body;
 
-  // تحقق من وجود الحضانة
+ 
   const nursery = await Nursery.findByPk(nurseryId);
   if (!nursery) {
     return res.status(404).json({ message: "Nursery not found" });
   }
 
-   // تحقق إذا كان الطلب يحتوي على gymId و nurseryId في نفس الوقت
+  
    if (req.body.gymId) {
     return res.status(400).json({ message: "Cannot send both gymId and nurseryId in the same request." });
   }
@@ -117,12 +125,12 @@ exports.addCommentForNursery = async (req, res) => {
     return res.status(404).json({ message: "User not found" });
   }
 
-   // تحقق من أن التعليق يحتوي فقط على nurseryId أو gymId، ولكن ليس كلاهما
+   
    if (req.body.gymId) {
     return res.status(400).json({ message: "GymId should not be provided for nursery comments." });
   }
 
-   // التحقق من وجود حجز مكتمل الدفع للحضانة لهذا المستخدم
+   
   const existingBooking = await Booking.findOne({
     where: {
       user_id: userId,

@@ -185,7 +185,7 @@ const UserProfile = () => {
                     borderColor: 'transparent',
                   }}
                 >
-                  {user?.[field] || 'N/A'}
+                  {user?.[field] || 'Fill the fields'}
                 </p>
               )}
             </div>

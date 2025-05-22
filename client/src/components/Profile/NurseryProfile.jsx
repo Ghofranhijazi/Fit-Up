@@ -267,7 +267,7 @@ const NurseryProfile = () => {
                       borderColor: 'transparent',
                     }}
                   >
-                    {nursery?.[field] || 'N/A'}
+                    {nursery?.[field] || 'Fill the fields'}
                   </p>
                 )}
               </div>

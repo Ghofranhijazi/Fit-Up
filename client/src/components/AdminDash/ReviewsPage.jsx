@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { User, Star, Loader2, AlertCircle, RefreshCw } from "lucide-react";
+import { confirmAlert } from 'react-confirm-alert';
+import 'react-confirm-alert/src/react-confirm-alert.css';
+import { toast } from "react-toastify";
 
 function ReviewsPage() {
   const [comments, setComments] = useState([]);
@@ -25,18 +28,31 @@ function ReviewsPage() {
       .finally(() => setLoading(false));
   };
 
-  const handleDelete = (id) => {
-    if (window.confirm("Permanently delete this review?")) {
-      axios.delete(`http://localhost:5000/api/comment/comments/${id}`, { withCredentials: true })
-        .then(() => {
-          setComments(comments.filter(c => c.id !== id));
-        })
-        .catch(err => {
-          console.error("Error deleting comment:", err);
-          setError("Failed to delete review");
-        });
-    }
-  };
+ const handleDelete = (id) => {
+  confirmAlert({
+    title: 'Confirm to delete',
+    message: 'Are you sure you want to delete this review?',
+    buttons: [
+      {
+        label: 'Yes',
+        onClick: () => {
+          axios.delete(`http://localhost:5000/api/comment/comments/${id}`, { withCredentials: true })
+            .then(() => {
+              setComments(comments.filter(c => c.id !== id));
+              toast.success("Review deleted successfully");
+            })
+            .catch(() => {
+              toast.error("Failed to delete review");
+            });
+        }
+      },
+      {
+        label: 'Cancel',
+        onClick: () => { /* do nothing */ }
+      }
+    ]
+  });
+};
 
  return (
   <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
